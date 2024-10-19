@@ -5,3 +5,42 @@
 [x-cloak] {
     display: none;
 }
+
+html body {
+    background-color: #000;
+    color: #FFF;
+}
+
+html body * {
+    color: #FFF;
+}
+
+html body input {
+    color: #000;
+}
+
+html body .modal * {
+    color: #000;
+}
+
+.received, .sent {
+    padding: 10px;
+    border: 1px solid white;
+    margin-bottom: 16px;
+}
+
+.received p, .sent p {
+    margin-bottom: 0;
+}
+
+.sent {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.received {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}

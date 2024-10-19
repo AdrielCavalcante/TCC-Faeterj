@@ -38,4 +38,20 @@ class UserController extends Controller
 
         return response()->json(['status' => 'User registered successfully']);
     }
+
+    // Lista os usuários registrados
+    public function dashboard() {
+        $usuarios = User::all();
+
+        if (count($usuarios) === 0) {
+            $usuarios = 'Nenhum usuário registrado';
+        }
+
+        $currentUserId = auth()->id();
+
+        return view('dashboard', [
+            'usuarios' => $usuarios,
+            'currentUserId' => $currentUserId
+        ]);
+    }
 }

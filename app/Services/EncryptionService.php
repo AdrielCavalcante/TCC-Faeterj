@@ -23,7 +23,7 @@ class EncryptionService
         $rsaPublicKey = RSA::load($publicKey);
         return base64_encode($rsaPublicKey->encrypt($aesKey));
     }
-
+    
     // Descriptografa a chave AES com a chave privada RSA
     public function decryptAESKey($encryptedKey, $privateKey)
     {
@@ -67,7 +67,7 @@ class EncryptionService
     }
 
     // Gera um par de chaves RSA
-    public function generateRSAKeys()
+    public static function generateRSAKeys()
     {
         $keyPair = RSA::createKey(2048);
         return [

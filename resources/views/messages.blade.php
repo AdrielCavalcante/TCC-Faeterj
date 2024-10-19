@@ -44,6 +44,7 @@
         @csrf
         <input type="hidden" name="receiver_id" value="{{ $receiverId }}">
         <textarea name="content" placeholder="Type a message..."></textarea>
+        <input type="checkbox" name="cipher" id="">
         <button type="submit">Send</button>
     </form>
 </div>
