@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Vue Example</title>
-    @vite('resources/sass/app.scss')
+    @vite('resources/css/app.css')
 </head>
 <body>
+    <?php phpinfo() ?>
     <div id="app" v-cloak>
         <p v-html="message"></p>
         <div v-html="text1"></div>
