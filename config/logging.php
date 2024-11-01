@@ -58,6 +58,12 @@ return [
             'level' => 'debug',
         ],
 
+        'auditoria' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/auditoria.log'),
+            'level' => 'debug',
+        ],
+
         'stack' => [
             'driver' => 'stack',
             'channels' => explode(',', env('LOG_STACK', 'single')),

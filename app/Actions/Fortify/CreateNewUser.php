@@ -37,11 +37,11 @@ class CreateNewUser implements CreatesNewUsers
             'password' => Hash::make($input['password']),
             'public_key' => $keys['public_key']
         ]);
-        
-        PrivateKey::create([
-            'user_id' => $newUser->id,
-            'private_key' => $keys['private_key']
-        ]);
+
+        // Armazena a private_key na sessão
+        session(['private_key' => $keys['private_key']]);
+
+        auth()->login($newUser);
 
         return $newUser;
     }

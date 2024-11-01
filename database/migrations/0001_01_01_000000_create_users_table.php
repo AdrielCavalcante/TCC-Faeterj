@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('password');
             $table->text('public_key');
             $table->rememberToken();
-            $table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();
             $table->timestamps();
         });

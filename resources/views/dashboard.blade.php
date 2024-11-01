@@ -6,6 +6,68 @@
 @section('titulo', 'Dashboard')
 
 @section('content')
+
+{{-- Mensagem de tutorial para baixar a chave --}}
+@if($privateKey)
+        <!-- Modal -->
+        <div class="modal fade" id="TutorialModal" tabindex="-1" aria-labelledby="tutorialModal" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="tutorialModalLabel">Modal title</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{ $privateKey }}
+                    <button id="downloadBtn">Baixar Chave Privada</button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Verifica se a modal deve ser exibida
+                const tutorialModal = new bootstrap.Modal(document.getElementById('TutorialModal'));
+                tutorialModal.show(); // Exibe a modal
+
+                const modalTutorialElemento = document.getElementById('TutorialModal');
+
+                modalTutorialElemento.addEventListener('hidden.bs.modal', function () {
+                    window.location.href = window.location.pathname + '?removeKey';
+                });
+
+                document.getElementById('downloadBtn').addEventListener('click', function () {
+                    const content = String.raw`{{ $privateKey }}`;
+                    const filename = "privateKey.key";
+
+                    // Cria um Blob com o conteúdo
+                    const blob = new Blob([content], { type: 'text/plain' });
+
+                    // Cria uma URL para o Blob
+                    const url = URL.createObjectURL(blob);
+
+                    // Cria um link temporário
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+
+                    // Adiciona o link ao documento e clica nele
+                    document.body.appendChild(a);
+                    a.click();
+
+                    // Remove o link e libera a URL do Blob
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                });
+            });
+        </script>
+@endif
+
     <!-- Lista de usuários -->
     <div class="user-list"><!-- Botão para abrir modal -->
         <h3>Usuários Cadastrados</h3>

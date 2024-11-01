@@ -42,16 +42,21 @@ class UserController extends Controller
     // Lista os usuários registrados
     public function dashboard() {
         $usuarios = User::all();
+        \Log::channel('auditoria')->info($usuarios[0]->audits);
 
         if (count($usuarios) === 0) {
             $usuarios = 'Nenhum usuário registrado';
         }
 
         $currentUserId = auth()->id();
+        
+        if (request()->has('removeKey')) {
+            session()->forget('private_key'); // Remove a chave privada da sessão
+        }
 
-        return view('dashboard', [
-            'usuarios' => $usuarios,
-            'currentUserId' => $currentUserId
-        ]);
+        $privateKey = session()->get('private_key', null); // Retorna nulo se não tiver 
+
+        // Usando compact para passar as variáveis para a view
+        return view('dashboard', compact('usuarios', 'currentUserId', 'privateKey'));
     }
 }
