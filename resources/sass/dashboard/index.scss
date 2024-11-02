@@ -1,0 +1,59 @@
+.contact-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 32px;
+
+    h3 {
+        color: $corSecundaria;
+    }
+
+    .listagem {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+
+        background-color: $white;
+        box-shadow: 0 0 128px 0 rgba(0, 0, 0, 0.1), 0 32px 64px -48px rgba(0, 0, 0, 0.5);
+        border-radius: 16px;
+        margin-top: 1rem;
+        min-height: 400px;
+        min-width: 768px;
+
+        .authProfile {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 1rem 1.25rem;
+            border-bottom: 3px solid $corPrincipal;
+            width: 100%;
+
+            &:last-child {
+                border-bottom: none;
+            }
+        }
+
+        .chatUser {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 1rem 1.25rem;
+            border-bottom: 3px solid $bgPrincipal;
+            width: 100%;
+
+            &:last-child {
+                border-bottom: none;
+            }
+        }
+    }
+
+    .profileImage {
+        img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+    }
+}

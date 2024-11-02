@@ -38,6 +38,8 @@ class CreateNewUser implements CreatesNewUsers
             'public_key' => $keys['public_key']
         ]);
 
+        $newUser->assignRole('colaborador');
+
         // Armazena a private_key na sessão
         session(['private_key' => $keys['private_key']]);
 

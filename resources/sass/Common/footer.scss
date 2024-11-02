@@ -1,0 +1,15 @@
+footer {
+    background-color: $white;
+    display: flex;
+    justify-content: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    padding: 12px 0;
+    box-shadow: 0 -6px 10px 0 rgba(0, 0, 0, 0.1);
+    
+    strong {
+        color: $corSecundaria;
+        font-weight: 600;
+    }
+}

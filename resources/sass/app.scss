@@ -1,9 +1,18 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'variables.scss';
+@import 'Common/header.scss';
+@import 'Common/footer.scss';
+@import 'dashboard/index.scss';
 
 [x-cloak] {
     display: none;
+}
+
+html body {
+    background-color: #e5e7eb;
+}
+
+body main {
+    margin-bottom: 64px;
 }
 
 .received, .sent {

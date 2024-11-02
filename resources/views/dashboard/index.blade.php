@@ -3,78 +3,87 @@
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
-@section('titulo', 'Dashboard')
+@section('titulo', 'Painel de controle')
 
 @section('content')
 
 {{-- Mensagem de tutorial para baixar a chave --}}
 @if($privateKey)
-        <!-- Modal -->
-        <div class="modal fade" id="TutorialModal" tabindex="-1" aria-labelledby="tutorialModal" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
+    <!-- Modal -->
+    <div class="modal fade" id="TutorialModal" tabindex="-1" aria-labelledby="tutorialModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="tutorialModalLabel">Modal title</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    {{ $privateKey }}
                     <button id="downloadBtn">Baixar Chave Privada</button>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                // Verifica se a modal deve ser exibida
-                const tutorialModal = new bootstrap.Modal(document.getElementById('TutorialModal'));
-                tutorialModal.show(); // Exibe a modal
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Verifica se a modal deve ser exibida
+            const tutorialModal = new bootstrap.Modal(document.getElementById('TutorialModal'));
+            tutorialModal.show(); // Exibe a modal
 
-                const modalTutorialElemento = document.getElementById('TutorialModal');
+            const modalTutorialElemento = document.getElementById('TutorialModal');
 
-                modalTutorialElemento.addEventListener('hidden.bs.modal', function () {
-                    window.location.href = window.location.pathname + '?removeKey';
-                });
-
-                document.getElementById('downloadBtn').addEventListener('click', function () {
-                    const content = String.raw`{{ $privateKey }}`;
-                    const filename = "privateKey.key";
-
-                    // Cria um Blob com o conteúdo
-                    const blob = new Blob([content], { type: 'text/plain' });
-
-                    // Cria uma URL para o Blob
-                    const url = URL.createObjectURL(blob);
-
-                    // Cria um link temporário
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = filename;
-
-                    // Adiciona o link ao documento e clica nele
-                    document.body.appendChild(a);
-                    a.click();
-
-                    // Remove o link e libera a URL do Blob
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                });
+            modalTutorialElemento.addEventListener('hidden.bs.modal', function () {
+                window.location.href = window.location.pathname + '?removeKey';
             });
-        </script>
+
+            document.getElementById('downloadBtn').addEventListener('click', function () {
+                const content = String.raw`{{ $privateKey }}`;
+                const filename = "privateKey.key";
+
+                // Cria um Blob com o conteúdo
+                const blob = new Blob([content], { type: 'text/plain' });
+
+                // Cria uma URL para o Blob
+                const url = URL.createObjectURL(blob);
+
+                // Cria um link temporário
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+
+                // Adiciona o link ao documento e clica nele
+                document.body.appendChild(a);
+                a.click();
+
+                // Remove o link e libera a URL do Blob
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        });
+    </script>
 @endif
 
-    <!-- Lista de usuários -->
-    <div class="user-list"><!-- Botão para abrir modal -->
-        <h3>Usuários Cadastrados</h3>
-        <div style="display: flex; flex-direction: column; gap: 12px;">
+<!-- Lista de usuários conectados -->
+<div class="contact-list">
+    <h3>Lista de contatos</h3>
+    <div class="listagem">
+        <div class="authProfile">
+            <div class="profileImage">
+                <img src="{{ auth()->user()->profile_photo_url }}" alt="foto do usuário: {{ auth()->user()->name }}">
+            </div>
+            <strong class="profileName">{{ auth()->user()->name }}</strong>
+        </div>
         @foreach ($usuarios as $user)
             @if ($user->id !== $currentUserId) <!-- Verifica se o ID do usuário não é igual ao do usuário atual -->
-                <button data-user-id="{{ $user->id }}" style="width: fit-content; border: 1px solid white;" type="submit">Chat com {{ $user->name }}</button>
+                <div class="chatUser" data-user-id="{{ $user->id }}">
+                    <div class="profileImage">
+                        <img src="{{ $user->profile_photo_url }}" alt="foto do usuário: {{ $user->name }}">
+                    </div>
+                    <div>
+                        <strong class="profileName">{{ $user->name }}</strong>
+                        <span>{{ $user->roles }}</span>
+                    </div>
+                </div>
             
                 <!-- Modal Bootstrap -->
                 <div class="modal fade" id="privateKeyModal" tabindex="-1" aria-labelledby="privateKeyModalLabel" aria-hidden="true">
@@ -99,10 +108,10 @@
                 </div>
             @endif
         @endforeach
-        </div>
     </div>
+</div>
 
-    <script>
+<script>
     document.addEventListener('DOMContentLoaded', function() {
         const privateKeyModal = new bootstrap.Modal(document.getElementById('privateKeyModal'));
 
@@ -161,5 +170,5 @@
             }
         });
     });
-    </script>
+</script>
 @endsection

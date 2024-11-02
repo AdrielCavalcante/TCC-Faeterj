@@ -73,6 +73,10 @@ return [
     |
     */
 
+    'redirects' => [
+        'logout' => 'login',
+    ],
+
     'home' => '/dashboard',
 
     /*

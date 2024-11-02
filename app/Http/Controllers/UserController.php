@@ -57,6 +57,6 @@ class UserController extends Controller
         $privateKey = session()->get('private_key', null); // Retorna nulo se não tiver 
 
         // Usando compact para passar as variáveis para a view
-        return view('dashboard', compact('usuarios', 'currentUserId', 'privateKey'));
+        return view('dashboard.index', compact('usuarios', 'currentUserId', 'privateKey'));
     }
 }
