@@ -10,11 +10,17 @@ class GenerateKeys extends Component
 {
     public function generateKeys()
     {
+        // Pega o usuário autenticado	
+        $user = Auth::user();
+
+        // Remove todas mensagens daquele usuário
+        $user->sentMessages()->delete();
+        $user->receivedMessages()->delete();
+
         // Gera as chaves RSA
         $keys = EncryptionService::generateRSAKeys();
 
         // Atualiza o usuário com a nova chave pública
-        $user = Auth::user();
         $user->update([
             'public_key' => $keys['public_key'],
         ]);

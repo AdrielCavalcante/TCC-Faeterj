@@ -24,9 +24,12 @@ class CreateNewUser implements CreatesNewUsers
     {
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users', 'regex:/^.+@faeterj-rio\.edu\.br$/i'],
             'password' => $this->passwordRules(),
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
+        ], 
+        [
+            'email.regex' => 'O e-mail deve pertencer ao domínio @faeterj-rio.edu.br.',
         ])->validate();
 
         $keys = EncryptionService::generateRSAKeys();

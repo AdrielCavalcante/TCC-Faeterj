@@ -14,7 +14,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="tutorialModalLabel">Modal title</h1>
+                    <h1 class="modal-title fs-5" id="tutorialModalLabel">Baixar chave</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -72,6 +72,8 @@
                 <img src="{{ auth()->user()->profile_photo_url }}" alt="foto do usuário: {{ auth()->user()->name }}">
             </div>
             <strong class="profileName">{{ auth()->user()->name }}</strong>
+            <hr style="width: 20px; opacity: 1; margin: 0 -1rem; border-color: grey; transform: rotate(90deg);">
+            <span>{{ auth()->user()->sector }}</span>
         </div>
         @foreach ($usuarios as $user)
             @if ($user->id !== $currentUserId) <!-- Verifica se o ID do usuário não é igual ao do usuário atual -->
@@ -79,31 +81,12 @@
                     <div class="profileImage">
                         <img src="{{ $user->profile_photo_url }}" alt="foto do usuário: {{ $user->name }}">
                     </div>
-                    <div>
+                    <div class="d-flex gap-2 align-items-center">
                         <strong class="profileName">{{ $user->name }}</strong>
-                        <span>{{ $user->roles }}</span>
-                    </div>
-                </div>
-            
-                <!-- Modal Bootstrap -->
-                <div class="modal fade" id="privateKeyModal" tabindex="-1" aria-labelledby="privateKeyModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                        <h5 class="modal-title" id="privateKeyModalLabel">Inserir Chave Privada</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                        <form id="privateKeyForm">
-                            <div class="mb-3">
-                            <input type="hidden" id="userIdInput" value="">
-                            <label for="privateKeyInput" class="form-label">Chave Privada</label>
-                            <input type="file" class="form-control" id="privateKeyInput" accept=".pem,.key" required>
-                            </div>
-                            <button type="submit" class="btn btn-success">Salvar Chave Privada</button>
-                        </form>
-                        </div>
-                    </div>
+                        @if ($user->sector) 
+                            <hr style="width: 20px; opacity: 1; border-color: grey; transform: rotate(90deg);">
+                            <span>{{ $user->sector }}</span>
+                        @endif
                     </div>
                 </div>
             @endif
@@ -111,9 +94,36 @@
     </div>
 </div>
 
+<!-- Modal para inserir chave privada -->
+<div class="modal fade" id="privateKeyModal" tabindex="-1" aria-labelledby="privateKeyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="privateKeyModalLabel">Inserir Chave Privada</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="privateKeyForm">
+                    <div class="mb-3">
+                        <input type="hidden" id="userIdInput" value="">
+                        <label for="privateKeyInput" class="form-label">Chave Privada</label>
+                        <input type="file" class="form-control" id="privateKeyInput" accept=".pem,.key" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Salvar Chave Privada</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const privateKeyModal = new bootstrap.Modal(document.getElementById('privateKeyModal'));
+
+        @if($privateKey)
+            const privateKey = {{$privateKey}}
+            sessionStorage.setItem('key', privateKey);
+        @endif
 
         // Verifica se o parâmetro error=invalid_key está presente na URL
         const urlParams = new URLSearchParams(window.location.search);
@@ -122,19 +132,19 @@
             privateKeyModal.show();
         }
 
-        const buttons = document.querySelectorAll('button[data-user-id]');
+        const buttons = document.querySelectorAll('.chatUser');
 
         buttons.forEach(button => {
             button.addEventListener('click', function() {
+                console.log('Clicou no botão');
                 const userId = this.getAttribute('data-user-id');
-                document.getElementById('userIdInput').value = userId; // Define o ID do usuário no campo oculto
-            
+                document.getElementById('userIdInput').value = userId;
+
                 // Verifica se a chave privada já está definida no sessionStorage
                 const storedKey = sessionStorage.getItem('key');
 
                 if (storedKey) {
                     privateKeyModal.hide();
-                    // Redireciona para a página de chat com o ID do usuário
                     window.location.href = `/chat/${userId}`;
                 } else {
                     privateKeyModal.show();

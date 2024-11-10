@@ -24,29 +24,30 @@
                                     reader.readAsDataURL($refs.photo.files[0]);
                             " />
 
-                <x-label for="photo" value="{{ __('Photo') }}" />
+                <x-label for="photo" value="Foto de Perfil" />
 
                 <!-- Current Profile Photo -->
-                <div class="mt-2" x-show="! photoPreview">
-                    <img src="{{ $this->user->profile_photo_url }}" alt="{{ $this->user->name }}" class="rounded-full h-20 w-20 object-cover">
+                <div class="mt-2 d-flex gap-3">
+                    <!-- New Profile Photo Preview -->
+                    <div class="mt-2" x-show="photoPreview" style="display: none;">
+                        <span class="block rounded-full w-20 h-20 bg-cover bg-no-repeat bg-center"
+                            x-bind:style="'background-image: url(\'' + photoPreview + '\');'">
+                        </span>
+                    </div>
+
+                    <img x-show="!photoPreview" src="{{ $this->user->profile_photo_url }}" alt="{{ $this->user->name }}" class="rounded-full h-20 w-20 object-cover">
+                    <div>
+                        <x-secondary-button class="mt-2 me-2" type="button" x-on:click.prevent="$refs.photo.click()">
+                            {{ __('Select A New Photo') }}
+                        </x-secondary-button>
+        
+                        @if ($this->user->profile_photo_path)
+                            <x-secondary-button type="button" class="mt-2" wire:click="deleteProfilePhoto">
+                                {{ __('Remove Photo') }}
+                            </x-secondary-button>
+                        @endif
+                    </div>
                 </div>
-
-                <!-- New Profile Photo Preview -->
-                <div class="mt-2" x-show="photoPreview" style="display: none;">
-                    <span class="block rounded-full w-20 h-20 bg-cover bg-no-repeat bg-center"
-                          x-bind:style="'background-image: url(\'' + photoPreview + '\');'">
-                    </span>
-                </div>
-
-                <x-secondary-button class="mt-2 me-2" type="button" x-on:click.prevent="$refs.photo.click()">
-                    {{ __('Select A New Photo') }}
-                </x-secondary-button>
-
-                @if ($this->user->profile_photo_path)
-                    <x-secondary-button type="button" class="mt-2" wire:click="deleteProfilePhoto">
-                        {{ __('Remove Photo') }}
-                    </x-secondary-button>
-                @endif
 
                 <x-input-error for="photo" class="mt-2" />
             </div>
@@ -81,18 +82,27 @@
                 @endif
             @endif
         </div>
+
+        <div class="col-span-6 sm:col-span-4">
+            <x-label for="sector" value="Setor de trabalho" />
+            <x-input id="sector" type="text" class="mt-1 block w-full" wire:model="state.sector" required autocomplete="sector" />
+            <x-input-error for="sector" class="mt-2" />
+        </div>
     </x-slot>
 
     <x-slot name="actions">
-        <x-action-message class="me-3" on="saved">
-            {{ __('Saved.') }}
-        </x-action-message>
-
-        <!-- Botão para gerar as chaves RSA -->
-        @livewire('generate-keys')
-
-        <x-button wire:loading.attr="disabled" wire:target="photo">
-            {{ __('Save') }}
-        </x-button>
+        <div class="w-100 d-flex align-items-center justify-content-between">
+            <!-- Botão para gerar as chaves RSA -->
+            @livewire('generate-keys')
+            
+            <div>
+                <x-action-message class="me-3" on="saved">
+                    {{ __('Saved.') }}
+                </x-action-message>
+                <x-button wire:loading.attr="disabled" wire:target="photo">
+                    {{ __('Save') }}
+                </x-button>
+            </div>
+        </div>
     </x-slot>
 </x-form-section>

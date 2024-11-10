@@ -2,6 +2,7 @@
 @import 'Common/header.scss';
 @import 'Common/footer.scss';
 @import 'dashboard/index.scss';
+@import 'dashboard/chat.scss';
 
 [x-cloak] {
     display: none;
@@ -13,26 +14,4 @@ html body {
 
 body main {
     margin-bottom: 64px;
-}
-
-.received, .sent {
-    padding: 10px;
-    border: 1px solid black;
-    margin-bottom: 16px;
-}
-
-.received p, .sent p {
-    margin-bottom: 0;
-}
-
-.sent {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-.received {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
 }

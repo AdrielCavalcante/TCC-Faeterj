@@ -7,7 +7,7 @@
         <title>@yield('titulo')</title>
         <!--Fonte do google-->
         <link href="https://fonts.googleapis.com/css2?family=Roboto" rel="stylesheet">
-
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
         @vite(['resources/css/app.css', 'resources/sass/app.scss', 'resources/js/app.js'])
     </head>
     <body>
@@ -16,15 +16,20 @@
             @if (View::hasSection('titulo'))
                 <div class="bg-white shadow">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                            @yield('titulo')
-                        </h2>
+                        <div class="d-flex gap-3 align-items-center">
+                            @if(View::hasSection('imagemTitulo'))
+                                <img src="@yield('imagemTitulo')" alt="Imagem do título" class="w-10 h-10 rounded-full object-cover">
+                            @endif
+                            <h2 class="font-semibold mb-0 text-xl text-gray-800 leading-tight">
+                                @yield('titulo')
+                            </h2>
+                        </div>
                     </div>
                 </div>
             @endif
         </header>
         <main>
-            <div class="container-fluid">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="row">
                 @if(session('msg'))
                     <p class="msg">{{session('msg')}}</p>

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->bigInteger('storage_used')->default(0); // Armazena o uso de armazenamento em bytes
+            $table->string('sector')->nullable(); // Armazena o setor do usuário
         });
     }
 
@@ -23,6 +24,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('storage_used');
+            $table->dropColumn('sector');
         });
     }
 };

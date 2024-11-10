@@ -3,41 +3,47 @@
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
-@section('titulo', 'Chat')
+@section('titulo')
+    Chat com {{ $receiver->name }} @if($receiver->sector) - {{ $receiver->sector }} @endif
+@endsection
+
+@section('imagemTitulo')
+    {{ $receiver->profile_photo_url }}
+@endsection
 
 @section('content')
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
-<div id="chat">
-    <h3>Mensagens</h3>
-    <!-- Renderizar mensagens dinamicamente com Vue -->
-    <div v-for="message in messages" :key="message.id" :class="{'sent': message.sender_id === userId, 'received': message.sender_id !== userId}">
-        <small>@{{ new Date(message.created_at).toLocaleDateString() }} @{{ new Date(message.created_at).toLocaleTimeString() }}</small>
-        <div v-if="message.content">
-            <p>@{{ message.content }}</p>
-        </div>
-        <div v-else>
-            <button class="border" v-if="message.file_path" @click="downloadFile(message.id, {'sender': message.sender_id === userId, 'receiver': message.sender_id !== userId})">Baixar Arquivo</button>
-        </div>
-    </div>
-
-    <div v-if="loading">
-        <p>Enviando...</p>
-    </div>
+<section id="chat">
+    <section class="Innerchat">
+        <!-- Renderizar mensagens dinamicamente com Vue -->
+        <article v-for="message in messages" :key="message.id" :class="{'sent': message.sender_id === userId, 'received': message.sender_id !== userId}">
+            <small>@{{ new Date(message.created_at).toLocaleDateString() }} @{{ new Date(message.created_at).toLocaleTimeString() }}</small>
+            <div class="box-chat" v-if="message.content">
+                <p>@{{ message.content }}</p>
+            </div>
+            <div class="box-button" v-else>
+                <button class="border" v-if="message.file_path" @click="downloadFile(message.id, {'sender': message.sender_id === userId, 'receiver': message.sender_id !== userId})">Baixar Arquivo</button>
+            </div>
+        </article>
+    </section>
     
     <form id="message-form" @submit.prevent="sendMessage" class="mt-3">
         @csrf        
         <div class="input-group">
             <textarea v-model="messageContent" placeholder="Digite uma mensagem..." class="form-control" @input="clearFile" :disabled="selectedFile !== null"></textarea>
-            <input type="file" ref="fileInput" @change="handleFileChange" class="form-control" />
+            <i @click="triggerFileInput" class="bi bi-paperclip"></i>
+            <input class="d-none" type="file" ref="fileInput" @change="handleFileChange" />
         </div>
-        <button type="submit" class="btn btn-success mt-2">Enviar</button>
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-send"></i>
+        </button>
     </form>
-</div>
+</section>
 
 <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() { 
     const { createApp, ref, onMounted } = Vue;
 
     // Inicializar o Pusher com as variáveis do .env (MUDAR ISSO PARA O BACKEND)
@@ -63,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 selectedFile.value = event.target.files[0];
                 // Limpa o campo de mensagem se um arquivo foi selecionado
                 if (selectedFile.value) {
-                    messageContent.value = ''; 
+                    messageContent.value = selectedFile.value.name; 
                 }
             };
 
@@ -125,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (status === 201) {
                             // Aqui você pode adicionar lógica para exibir a mensagem enviada
                             messages.value.push({
-                                content: 'arquivo', // Ou qualquer outro conteúdo que deseja mostrar
+                                content: selectedFile.value.name, // Ou qualquer outro conteúdo que deseja mostrar
                                 sender_id: userId,
                                 created_at: new Date().toISOString() // Data atual
                             });
@@ -160,18 +166,27 @@ document.addEventListener('DOMContentLoaded', function() {
                     })
                     .then(response =>  {
                         loading.value = false;
-                        response.json(); 
+                        return response.json().then(data => {
+                            return {
+                                status: response.status,
+                                data: data
+                            };
+                        });
                     })
-                    .then(data => {
-                        if (data.status === 201) {
+                    .then(({ status, data }) => {
+                        if (status === 201) {
                             messages.value.push({
                                 content: messageContent.value,
                                 sender_id: userId,
                                 created_at: new Date().toISOString() // Data atual
                             });
                             messageContent.value = ''; // Limpa o campo de mensagem
+                        } else if (status === 401) {
+                            alert('Erro ao enviar mensagem: ' + data.message);
+                        } else if (status === 422) {
+                            alert('Erro ao enviar mensagem inválida');
                         } else {
-                            alert('Erro ao enviar mensagem');
+                            alert('Erro ao enviar mensagem: ' + data.message);
                         }
                     })
                     .catch(error => {
@@ -197,6 +212,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 const url = `/download-file/${messageId}?key=${encodeURIComponent(keyVar)}&owner=${encodeURIComponent(owner)}`;
                 window.open(url, '_blank');
             }
+
+            const triggerFileInput = () => {
+                fileInput.value.click();  // Simula o clique no input de arquivo
+            };
 
             // Preencher mensagens ao carregar
             onMounted(() => {
@@ -239,7 +258,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 selectedFile,
                 clearFile,
                 fileInput,
-                downloadFile
+                downloadFile,
+                triggerFileInput
             };
         },
     }).mount('#chat');

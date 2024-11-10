@@ -78,7 +78,7 @@ class MessageController extends Controller
 
         $receiver = User::findOrFail($receiverId);
 
-        return view('chat', [
+        return view('dashboard/chat', [
             'user' => $user,
             'receiver' => $receiver
         ]);
