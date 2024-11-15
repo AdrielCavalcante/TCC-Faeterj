@@ -31,7 +31,14 @@
     <form id="message-form" @submit.prevent="sendMessage" class="mt-3">
         @csrf        
         <div class="input-group">
-            <textarea v-model="messageContent" placeholder="Digite uma mensagem..." class="form-control" @input="clearFile" :disabled="selectedFile !== null"></textarea>
+            <textarea 
+            v-model="messageContent"
+            placeholder="Digite uma mensagem..."
+            class="form-control"
+            @input="clearFile"
+            :disabled="selectedFile !== null"
+            @keydown="handleKeyDown"
+            rows="1"></textarea>
             <i @click="triggerFileInput" class="bi bi-paperclip"></i>
             <input class="d-none" type="file" ref="fileInput" @change="handleFileChange" />
         </div>
@@ -136,7 +143,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                 created_at: new Date().toISOString() // Data atual
                             });
                             selectedFile.value = null;
-                            fileInput.value = '';
+                            fileInput.value.value = '';
+                            messageContent.value = '';
+
                         } else if (status === 401) {
                             alert('Erro ao enviar mensagem com o arquivo: ' + data.message);
                         } else if (status === 413) {
@@ -217,6 +226,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 fileInput.value.click();  // Simula o clique no input de arquivo
             };
 
+            const handleKeyDown = (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();  // Evita a quebra de linha
+                    sendMessage();  // Chama a função para enviar a mensagem
+                }
+            };
+
             // Preencher mensagens ao carregar
             onMounted(() => {
                 fetchMessages();
@@ -259,7 +275,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 clearFile,
                 fileInput,
                 downloadFile,
-                triggerFileInput
+                triggerFileInput,
+                handleKeyDown
             };
         },
     }).mount('#chat');

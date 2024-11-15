@@ -15,5 +15,14 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(RoleSeeder::class);
+
+        $admin = User::create([
+            'name' => 'Admin',
+            'email' => 'admin@faeterj-rio.edu.br',
+            'password' => bcrypt('#SenhaD1ficil'),
+            'public_key' => ''
+        ]);
+
+        $admin->assignRole(Role::findByName('admin'));
     }
 }

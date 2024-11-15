@@ -20,6 +20,7 @@ return new class extends Migration
             $table->text('encryption_key_sender')->nullable(); // Chave de criptografia AES
             $table->text('encryption_key_receiver')->nullable(); // Chave de criptografia AES
             $table->boolean('encrypted')->default(true); // Se a mensagem está criptografada
+            $table->boolean('read')->default(false); // Se a mensagem foi lida
             $table->timestamps();
         });
     }

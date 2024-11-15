@@ -72,11 +72,13 @@
                 <img src="{{ auth()->user()->profile_photo_url }}" alt="foto do usuário: {{ auth()->user()->name }}">
             </div>
             <strong class="profileName">{{ auth()->user()->name }}</strong>
-            <hr style="width: 20px; opacity: 1; margin: 0 -1rem; border-color: grey; transform: rotate(90deg);">
-            <span>{{ auth()->user()->sector }}</span>
+            @if (auth()->user()->sector)        
+                <hr style="width: 20px; opacity: 1; margin: 0 -1rem; border-color: grey; transform: rotate(90deg);">
+                <span>{{ auth()->user()->sector }}</span>
+            @endif
         </div>
         @foreach ($usuarios as $user)
-            @if ($user->id !== $currentUserId) <!-- Verifica se o ID do usuário não é igual ao do usuário atual -->
+            @if ($user->id !== $currentUserId && $user->roles[0]->name != 'admin') <!-- Verifica se o ID do usuário não é igual ao do usuário atual -->
                 <div class="chatUser" data-user-id="{{ $user->id }}">
                     <div class="profileImage">
                         <img src="{{ $user->profile_photo_url }}" alt="foto do usuário: {{ $user->name }}">
