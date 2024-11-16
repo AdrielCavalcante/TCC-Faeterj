@@ -15,16 +15,16 @@
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
 <section id="chat">
-    <section class="col-lg-3 col-12">
+    <section class="col-lg-2 col-12">
         <article class="card">
             <div class="card-header">
                 <h5 class="card-title mb-0">Listagem de anexos:</h5>
             </div>
             <div class="card-body">
                 <div v-for="message in messages" :key="message.id">
-                    <div class="d-flex flex-column mt-2 mb-2" v-if="message.file_path">
-                        <h6 class="card-text">Arquivo @{{message.file_path.slice(-3).toUpperCase()}}</h6>
-                        <a :href="`#${message.id}`">Ir para o Anexo</a>
+                    <div class="d-flex flex-column mt-3 mb-3 gap-3" v-if="message.file_path">
+                        <h6 class="card-text mb-0">Arquivo @{{message.file_path.slice(-3).toUpperCase()}}</h6>
+                        <a :href="`#btn${message.id}`">Ir para o Anexo</a>
                         <div class="box-button" :id="message.id">
                             <button class="border" @click="downloadFile(message.id, {'sender': message.sender_id === userId, 'receiver': message.sender_id !== userId})">Baixar Arquivo</button>
                         </div>
@@ -33,7 +33,7 @@
             </div>
         </article>
     </section>
-    <section class="chat-box col-lg-9 col-12">
+    <section class="chat-box col-lg-10 col-12">
         <section class="Innerchat">
             <!-- Renderizar mensagens dinamicamente com Vue -->
             <article v-for="message in messages" :key="message.id" :class="{'sent': message.sender_id === userId, 'received': message.sender_id !== userId}">
@@ -41,7 +41,7 @@
                 <div class="box-chat" v-if="message.content">
                     <p>@{{ message.content }}</p>
                 </div>
-                <div class="box-button" :id="message.id" v-else>
+                <div class="box-button" :id="`btn${message.id}`" v-else>
                     <button class="border" v-if="message.file_path" @click="downloadFile(message.id, {'sender': message.sender_id === userId, 'receiver': message.sender_id !== userId})">Baixar Arquivo</button>
                 </div>
             </article>
