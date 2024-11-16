@@ -15,7 +15,7 @@
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
 <section id="chat">
-    <section class="Innerchat" ref="chatContainer">
+    <section class="Innerchat">
         <!-- Renderizar mensagens dinamicamente com Vue -->
         <article v-for="message in messages" :key="message.id" :class="{'sent': message.sender_id === userId, 'received': message.sender_id !== userId}">
             <small>@{{ new Date(message.created_at).toLocaleDateString() }} @{{ new Date(message.created_at).toLocaleTimeString() }}</small>
@@ -68,7 +68,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const selectedFile = ref(null);
             const fileInput = ref(null);
             const loading = ref(false);
-            const chatContainer = ref(null); // Referência ao contêiner de chat
 
             let sendTime = 0;
 
@@ -236,6 +235,8 @@ document.addEventListener('DOMContentLoaded', function() {
             };
 
             const scrollToBottom = () => {
+                const chatContainer = document.querySelector('.Innerchat');
+                
                 console.log(chatContainer);
                 console.log(chatContainer.value);
                 console.log(chatContainer.value.scrollHeight);
