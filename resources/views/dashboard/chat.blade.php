@@ -61,14 +61,6 @@ document.addEventListener('DOMContentLoaded', function() {
         logToConsole: true,
     });
 
-    setInterval(() => {
-        console.log('Estado da conexão:', pusher.connection.state);
-        if (pusher.connection.state !== 'connected') {
-            console.warn('Reconectando ao Pusher...');
-            pusher.connect();
-        }
-    }, 5000);
-
     const app = createApp({
         setup() {
             const messageContent = ref('');
@@ -78,6 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const selectedFile = ref(null);
             const fileInput = ref(null);
             const loading = ref(false);
+            const connectionState = ref(pusher.connection.state); // Estado da conexão
 
             let sendTime = 0;
 
@@ -242,6 +235,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     sendMessage();  // Chama a função para enviar a mensagem
                 }
             };
+
+            watch(connectionState, (newState) => {
+                console.log('Estado da conexão atualizado:', newState);
+                if (newState !== 'connected') {
+                    pusher.connect(); // Reconecta quando não está conectado
+                }
+            });
 
             // Preencher mensagens ao carregar
             onMounted(() => {
