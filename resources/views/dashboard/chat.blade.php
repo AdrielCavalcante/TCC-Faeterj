@@ -32,7 +32,6 @@
                         </div>
                     </div>
                 </div>
-                <span>{{ $mensagens->count() }}</span>
             </div>
         </article>
     </section>
