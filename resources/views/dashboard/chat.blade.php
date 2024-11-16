@@ -22,12 +22,10 @@
             </div>
             <div class="card-body">
                 <div v-for="message in messages" :key="message.id">
-                    <div v-if="message.file_path">
+                    <div class="d-flex flex-column mt-2 mb-2" v-if="message.file_path">
+                        <h6 class="card-text">Arquivo {{message.file_path.slice(-3).toUpperCase()}}</h6>
+                        <a :href="`#${message.id}`">Ir para o Anexo</a>
                         <div class="box-button" :id="message.id">
-                            <div v-if="message.file_path.slice(-3).toLowerCase() === 'pdf'">
-                                <h6 class="card-text">Arquivo PDF</h6>
-                            </div> 
-                            <a :href="`#${message.id}`">Ir para o Anexo</a>
                             <button class="border" @click="downloadFile(message.id, {'sender': message.sender_id === userId, 'receiver': message.sender_id !== userId})">Baixar Arquivo</button>
                         </div>
                     </div>
