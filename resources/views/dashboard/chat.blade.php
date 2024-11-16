@@ -240,6 +240,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Observa o estado de conexão
                 pusher.connection.bind('state_change', (states) => {
                     console.log(`Estado mudou: ${states.previous} -> ${states.current}`);
+                    
+                    // Verifica se a conexão foi perdida (state = disconnected)
+                    if (states.current === 'disconnected') {
+                        pusher.connect();
+                    }
                 });
 
                 // Inicializa a conexão
@@ -268,13 +273,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
 
                 });
-            });
-
-            watchEffect(() => {
-                // Verifica se o estado de conexão mudou
-                if (pusher.connection.state !== 'connected') {
-                    pusher.connect();  // Tenta reconectar automaticamente
-                }
             });
 
             return {
