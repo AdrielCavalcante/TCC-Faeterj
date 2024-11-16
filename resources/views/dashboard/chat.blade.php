@@ -236,6 +236,10 @@ document.addEventListener('DOMContentLoaded', function() {
             };
 
             const scrollToBottom = () => {
+                console.log(chatContainer);
+                console.log(chatContainer.value);
+                console.log(chatContainer.value.scrollHeight);
+                console.log(chatContainer.value.scrollTop);
                 if (chatContainer.value) {
                     chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
                 }
@@ -244,7 +248,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Preencher mensagens ao carregar
             onMounted(() => {
                 fetchMessages();
-
+                scrollToBottom();
                 // Observa o estado de conexão
                 pusher.connection.bind('state_change', (states) => {
                     // Verifica se a conexão foi perdida (state = disconnected)
