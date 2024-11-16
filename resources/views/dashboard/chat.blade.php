@@ -237,6 +237,14 @@ document.addEventListener('DOMContentLoaded', function() {
             onMounted(() => {
                 fetchMessages();
 
+                // Observa o estado de conexão
+                pusher.connection.bind('state_change', (states) => {
+                    console.log(`Estado mudou: ${states.previous} -> ${states.current}`);
+                });
+
+                // Inicializa a conexão
+                pusher.connect();
+
                 // Garantir que o ID menor vem primeiro
                 const chatChannelId = userId < receiverId 
                     ? userId + '.' + receiverId 
