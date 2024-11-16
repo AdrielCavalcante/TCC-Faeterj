@@ -51,7 +51,7 @@
 <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() { 
-    const { createApp, ref, onMounted } = Vue;
+    const { createApp, ref, onMounted, watch } = Vue;
 
     // Inicializar o Pusher com as variáveis do .env (MUDAR ISSO PARA O BACKEND)
     const pusher = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
