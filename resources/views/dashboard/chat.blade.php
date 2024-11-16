@@ -53,14 +53,6 @@
 document.addEventListener('DOMContentLoaded', function() { 
     const { createApp, ref, onMounted, watch } = Vue;
 
-    // Inicializar o Pusher com as variáveis do .env (MUDAR ISSO PARA O BACKEND)
-    const pusher = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
-        cluster: '{{ config('broadcasting.connections.pusher.options.cluster') }}',
-        encrypted: true,
-        enabledTransports: ['ws', 'wss'],
-        logToConsole: true,
-    });
-
     const app = createApp({
         setup() {
             const messageContent = ref('');
@@ -70,7 +62,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const selectedFile = ref(null);
             const fileInput = ref(null);
             const loading = ref(false);
-            const connectionState = ref(pusher.connection.state); // Estado da conexão
+            const connectionState = ref(null); // Estado da conexão
+
+            // Inicializar o Pusher com as variáveis do .env (MUDAR ISSO PARA O BACKEND)
+            const pusher = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
+                cluster: '{{ config('broadcasting.connections.pusher.options.cluster') }}',
+                encrypted: true,
+            });
+
 
             let sendTime = 0;
 
@@ -236,16 +235,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             };
 
-            watch(connectionState, (newState) => {
-                console.log('Estado da conexão atualizado:', newState);
-                if (newState !== 'connected') {
-                    pusher.connect(); // Reconecta quando não está conectado
-                }
-            });
-
             // Preencher mensagens ao carregar
             onMounted(() => {
                 fetchMessages();
+
+                // Escutar mudanças de estado no Pusher
+                pusher.connection.bind('state_change', (states) => {
+                    console.log(`Estado mudou: ${states.previous} -> ${states.current}`);
+                    connectionState.value = states.current; // Atualiza o estado reativo
+                });
+
+                // Log inicial para diagnosticar a conexão
+                console.log('Estado inicial da conexão:', pusher.connection.state);
+                connectionState.value = pusher.connection.state;
 
                 // Garantir que o ID menor vem primeiro
                 const chatChannelId = userId < receiverId 
@@ -272,6 +274,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
 
+            watch(connectionState, (newState) => {
+                console.log('Estado da conexão atualizado:', newState);
+                if (newState !== 'connected') {
+                    pusher.connect(); // Reconecta quando não está conectado
+                }
+            });
 
             return {
                 messageContent,
