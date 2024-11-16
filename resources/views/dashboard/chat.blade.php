@@ -15,14 +15,35 @@
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
 <section id="chat">
-    <section class="Innerchat">
+    <section class="col-lg-3 col-12">
+        <article class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Listagem de anexos:</h5>
+            </div>
+            <div class="card-body">
+                <div v-for="message in messages" :key="message.id">
+                    <div v-if="message.file_path">
+                        <div class="box-button" :id="message.id">
+                            <div v-if="message.file_path.slice(-3).toLowerCase() === 'pdf'">
+                                <h6 class="card-text">Arquivo PDF</h6>
+                            </div> 
+                            <a :href="`#${message.id}`">Ir para o Anexo</a>
+                            <button class="border" @click="downloadFile(message.id, {'sender': message.sender_id === userId, 'receiver': message.sender_id !== userId})">Baixar Arquivo</button>
+                        </div>
+                    </div>
+                </div>
+                <span>{{ $mensagens->count() }}</span>
+            </div>
+        </article>
+    </section>
+    <section class="col-lg-9 col-12 Innerchat">
         <!-- Renderizar mensagens dinamicamente com Vue -->
         <article v-for="message in messages" :key="message.id" :class="{'sent': message.sender_id === userId, 'received': message.sender_id !== userId}">
             <small>@{{ new Date(message.created_at).toLocaleDateString() }} @{{ new Date(message.created_at).toLocaleTimeString() }}</small>
             <div class="box-chat" v-if="message.content">
                 <p>@{{ message.content }}</p>
             </div>
-            <div class="box-button" v-else>
+            <div class="box-button" :id="message.id" v-else>
                 <button class="border" v-if="message.file_path" @click="downloadFile(message.id, {'sender': message.sender_id === userId, 'receiver': message.sender_id !== userId})">Baixar Arquivo</button>
             </div>
         </article>
@@ -240,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (chatContainer) {
                     setTimeout(() => {
                         chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
-                    }, 1500);
+                    }, 750);
                 }
             };
 
