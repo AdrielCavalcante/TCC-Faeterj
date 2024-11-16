@@ -61,17 +61,13 @@ document.addEventListener('DOMContentLoaded', function() {
         logToConsole: true,
     });
 
-    pusher.connection.bind('connected', function() {
-        console.log('Conectado ao Pusher com sucesso!');
-    });
-
-    pusher.connection.bind('disconnected', function() {
-        console.warn('Conexão com Pusher foi perdida. Tentando reconectar...');
-    });
-
-    pusher.connection.bind('error', function(err) {
-        console.error('Erro no Pusher:', err);
-    });
+    setInterval(() => {
+        console.log('Estado da conexão:', pusher.connection.state);
+        if (pusher.connection.state !== 'connected') {
+            console.warn('Reconectando ao Pusher...');
+            pusher.connect();
+        }
+    }, 5000);
 
     const app = createApp({
         setup() {
