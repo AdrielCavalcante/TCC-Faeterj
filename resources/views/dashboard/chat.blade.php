@@ -237,18 +237,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const scrollToBottom = () => {
                 const chatContainer = document.querySelector('.Innerchat');
 
-                console.log(chatContainer);
-                console.log(chatContainer.scrollHeight);
-                console.log(chatContainer.scrollTop);
                 if (chatContainer) {
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
                 }
             };
 
             // Preencher mensagens ao carregar
             onMounted(() => {
                 fetchMessages();
-                scrollToBottom();
+
                 // Observa o estado de conexão
                 pusher.connection.bind('state_change', (states) => {
                     // Verifica se a conexão foi perdida (state = disconnected)
@@ -256,10 +253,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         pusher.connect();
                     }
                 });
-
+                
                 // Inicializa a conexão
                 pusher.connect();
-
+               
+                setTimeout(() => {
+                    scrollToBottom();
+                }, 1000);
+                
                 // Garantir que o ID menor vem primeiro
                 const chatChannelId = userId < receiverId 
                     ? userId + '.' + receiverId 
