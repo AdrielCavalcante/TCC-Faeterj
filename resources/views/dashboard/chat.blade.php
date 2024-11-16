@@ -236,13 +236,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const scrollToBottom = () => {
                 const chatContainer = document.querySelector('.Innerchat');
-                
+
                 console.log(chatContainer);
-                console.log(chatContainer.value);
-                console.log(chatContainer.value.scrollHeight);
-                console.log(chatContainer.value.scrollTop);
-                if (chatContainer.value) {
-                    chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+                console.log(chatContainer.scrollHeight);
+                console.log(chatContainer.scrollTop);
+                if (chatContainer) {
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
                 }
             };
 
