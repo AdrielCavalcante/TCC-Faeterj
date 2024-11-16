@@ -57,8 +57,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const pusher = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
         cluster: '{{ config('broadcasting.connections.pusher.options.cluster') }}',
         encrypted: true,
-        enabledTransports: ['ws', 'wss'],
-        logToConsole: true,
     });
 
     const app = createApp({
@@ -267,7 +265,6 @@ document.addEventListener('DOMContentLoaded', function() {
             watchEffect(() => {
                 // Verifica se o estado de conexão mudou
                 if (pusher.connection.state !== 'connected') {
-                    console.warn('Reconectando ao Pusher...');
                     pusher.connect();  // Tenta reconectar automaticamente
                 }
             });
