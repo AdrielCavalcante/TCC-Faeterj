@@ -23,7 +23,7 @@
             <div class="card-body">
                 <div v-for="message in messages" :key="message.id">
                     <div class="d-flex flex-column mt-2 mb-2" v-if="message.file_path">
-                        <h6 class="card-text">Arquivo {{message.file_path.slice(-3).toUpperCase()}}</h6>
+                        <h6 class="card-text">Arquivo @{{message.file_path.slice(-3).toUpperCase()}}</h6>
                         <a :href="`#${message.id}`">Ir para o Anexo</a>
                         <div class="box-button" :id="message.id">
                             <button class="border" @click="downloadFile(message.id, {'sender': message.sender_id === userId, 'receiver': message.sender_id !== userId})">Baixar Arquivo</button>
