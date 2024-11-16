@@ -15,7 +15,7 @@
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
 <section id="chat">
-    <section class="Innerchat">
+    <section class="Innerchat" ref="chatContainer">
         <!-- Renderizar mensagens dinamicamente com Vue -->
         <article v-for="message in messages" :key="message.id" :class="{'sent': message.sender_id === userId, 'received': message.sender_id !== userId}">
             <small>@{{ new Date(message.created_at).toLocaleDateString() }} @{{ new Date(message.created_at).toLocaleTimeString() }}</small>
@@ -68,6 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const selectedFile = ref(null);
             const fileInput = ref(null);
             const loading = ref(false);
+            const chatContainer = ref(null); // Referência ao contêiner de chat
 
             let sendTime = 0;
 
@@ -145,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             selectedFile.value = null;
                             fileInput.value.value = '';
                             messageContent.value = '';
-
+                            scrollToBottom();
                         } else if (status === 401) {
                             alert('Erro ao enviar mensagem com o arquivo: ' + data.message);
                         } else if (status === 413) {
@@ -190,6 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 created_at: new Date().toISOString() // Data atual
                             });
                             messageContent.value = ''; // Limpa o campo de mensagem
+                            scrollToBottom();
                         } else if (status === 401) {
                             alert('Erro ao enviar mensagem: ' + data.message);
                         } else if (status === 422) {
@@ -233,14 +235,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             };
 
+            const scrollToBottom = () => {
+                if (chatContainer.value) {
+                    chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+                }
+            };
+
             // Preencher mensagens ao carregar
             onMounted(() => {
                 fetchMessages();
 
                 // Observa o estado de conexão
                 pusher.connection.bind('state_change', (states) => {
-                    console.log(`Estado mudou: ${states.previous} -> ${states.current}`);
-                    
                     // Verifica se a conexão foi perdida (state = disconnected)
                     if (states.current === 'disconnected') {
                         pusher.connect();
@@ -270,6 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             sender_id: data.sender_id,
                             created_at: new Date(data.created_at).toISOString()
                         });
+                        scrollToBottom();
                     }
 
                 });
