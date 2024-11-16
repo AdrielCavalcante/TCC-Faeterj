@@ -56,7 +56,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inicializar o Pusher com as variáveis do .env (MUDAR ISSO PARA O BACKEND)
     const pusher = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
         cluster: '{{ config('broadcasting.connections.pusher.options.cluster') }}',
-        encrypted: true
+        encrypted: true,
+        enabledTransports: ['ws', 'wss'],
+        logToConsole: true,
+    });
+
+    pusher.connection.bind('connected', function() {
+        console.log('Conectado ao Pusher com sucesso!');
+    });
+
+    pusher.connection.bind('disconnected', function() {
+        console.warn('Conexão com Pusher foi perdida. Tentando reconectar...');
+    });
+
+    pusher.connection.bind('error', function(err) {
+        console.error('Erro no Pusher:', err);
     });
 
     const app = createApp({
