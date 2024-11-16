@@ -238,7 +238,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 const chatContainer = document.querySelector('.Innerchat');
 
                 if (chatContainer) {
-                    chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
+                    setTimeout(() => {
+                        chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
+                    }, 1500);
                 }
             };
 
@@ -257,9 +259,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Inicializa a conexão
                 pusher.connect();
                
-                setTimeout(() => {
-                    scrollToBottom();
-                }, 1000);
+                scrollToBottom();
                 
                 // Garantir que o ID menor vem primeiro
                 const chatChannelId = userId < receiverId 
