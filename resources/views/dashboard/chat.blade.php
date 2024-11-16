@@ -35,37 +35,39 @@
             </div>
         </article>
     </section>
-    <section class="col-lg-9 col-12 Innerchat">
-        <!-- Renderizar mensagens dinamicamente com Vue -->
-        <article v-for="message in messages" :key="message.id" :class="{'sent': message.sender_id === userId, 'received': message.sender_id !== userId}">
-            <small>@{{ new Date(message.created_at).toLocaleDateString() }} @{{ new Date(message.created_at).toLocaleTimeString() }}</small>
-            <div class="box-chat" v-if="message.content">
-                <p>@{{ message.content }}</p>
+    <section class="chat-box col-lg-9 col-12">
+        <section class="Innerchat">
+            <!-- Renderizar mensagens dinamicamente com Vue -->
+            <article v-for="message in messages" :key="message.id" :class="{'sent': message.sender_id === userId, 'received': message.sender_id !== userId}">
+                <small>@{{ new Date(message.created_at).toLocaleDateString() }} @{{ new Date(message.created_at).toLocaleTimeString() }}</small>
+                <div class="box-chat" v-if="message.content">
+                    <p>@{{ message.content }}</p>
+                </div>
+                <div class="box-button" :id="message.id" v-else>
+                    <button class="border" v-if="message.file_path" @click="downloadFile(message.id, {'sender': message.sender_id === userId, 'receiver': message.sender_id !== userId})">Baixar Arquivo</button>
+                </div>
+            </article>
+        </section>
+        
+        <form id="message-form" @submit.prevent="sendMessage" class="mt-3">
+            @csrf        
+            <div class="input-group">
+                <textarea 
+                v-model="messageContent"
+                placeholder="Digite uma mensagem..."
+                class="form-control"
+                @input="clearFile"
+                :disabled="selectedFile !== null"
+                @keydown="handleKeyDown"
+                rows="1"></textarea>
+                <i @click="triggerFileInput" class="bi bi-paperclip"></i>
+                <input class="d-none" type="file" ref="fileInput" @change="handleFileChange" />
             </div>
-            <div class="box-button" :id="message.id" v-else>
-                <button class="border" v-if="message.file_path" @click="downloadFile(message.id, {'sender': message.sender_id === userId, 'receiver': message.sender_id !== userId})">Baixar Arquivo</button>
-            </div>
-        </article>
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-send"></i>
+            </button>
+        </form>
     </section>
-    
-    <form id="message-form" @submit.prevent="sendMessage" class="mt-3">
-        @csrf        
-        <div class="input-group">
-            <textarea 
-            v-model="messageContent"
-            placeholder="Digite uma mensagem..."
-            class="form-control"
-            @input="clearFile"
-            :disabled="selectedFile !== null"
-            @keydown="handleKeyDown"
-            rows="1"></textarea>
-            <i @click="triggerFileInput" class="bi bi-paperclip"></i>
-            <input class="d-none" type="file" ref="fileInput" @change="handleFileChange" />
-        </div>
-        <button type="submit" class="btn btn-success">
-            <i class="bi bi-send"></i>
-        </button>
-    </form>
 </section>
 
 <script src="https://js.pusher.com/7.0/pusher.min.js"></script>

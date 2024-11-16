@@ -1,6 +1,10 @@
 #chat {
-    border: 1px solid $corPrincipal;
-    border-radius: 8px;
+    display: flex;
+
+    .chat-box {
+        border: 1px solid $corPrincipal;
+        border-radius: 8px;
+    }
 
     .Innerchat {
         min-height: 600px;
