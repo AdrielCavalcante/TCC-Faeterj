@@ -31,7 +31,9 @@ class User extends Authenticatable implements Auditable
         'name',
         'email',
         'password',
-        'public_key'
+        'public_key',
+        'created_at',
+        'updated_at',
     ];
 
     /**

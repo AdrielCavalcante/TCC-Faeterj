@@ -11,6 +11,10 @@
     {{ $receiver->profile_photo_url }}
 @endsection
 
+@section('chat')
+chat
+@endsection
+
 @section('content')
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
@@ -21,14 +25,19 @@
                 <h5 class="card-title mb-0">Listagem de anexos:</h5>
             </div>
             <div class="card-body">
-                <div v-for="message in messages" :key="message.id">
-                    <div class="d-flex flex-column mt-3 mb-3 gap-3" v-if="message.file_path">
-                        <h6 class="card-text mb-0">Arquivo @{{message.file_path.slice(-3).toUpperCase()}}</h6>
-                        <a :href="`#btn${message.id}`">Ir para o Anexo</a>
-                        <div class="box-button" :id="message.id">
-                            <button class="border" @click="downloadFile(message.id, {'sender': message.sender_id === userId, 'receiver': message.sender_id !== userId})">Baixar Arquivo</button>
+                <div v-if="messagesWithFiles && messagesWithFiles.length > 0">
+                    <div v-for="message in messagesWithFiles">
+                        <div class="d-flex flex-column mt-3 pb-3 gap-2 border-bottom" v-if="message.file_path">
+                            <h6 class="card-text mb-0">Arquivo @{{ message.file_path.split('.').pop().toUpperCase() }}</h6>
+                            <a :href="`#btn${message.id}`">Ir para o Anexo</a>
+                            <div class="box-button" :id="message.id">
+                                <button class="border" @click="downloadFile(message.id, {'sender': message.sender_id === userId, 'receiver': message.sender_id !== userId})">Baixar Arquivo</button>
+                            </div>
                         </div>
                     </div>
+                </div>
+                <div v-else>
+                    <p class="card-text text-center my-3 fw-bold">Nenhum anexo enviado.</p>
                 </div>
             </div>
         </article>
@@ -83,6 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
         setup() {
             const messageContent = ref('');
             const messages = ref([]);
+            const messagesWithFiles = ref([]);
             const userId = {{ Auth::id() }};
             const receiverId = {{ $receiver->id }};
             const selectedFile = ref(null);
@@ -109,6 +119,8 @@ document.addEventListener('DOMContentLoaded', function() {
             };
 
             const fetchMessages = () => {
+                messages.value = [];
+                messagesWithFiles.value = [];
                 const keyVar = sessionStorage.getItem('key');
 
                 fetch(`{{ url('chatMessage') }}/${receiverId}`, {
@@ -124,6 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(response => response.json())
                 .then(data => {
                     messages.value = data;
+                    messagesWithFiles.value = data.filter(message => message.file_path && message.file_path.trim() !== '');
                 })
                 .catch(error => {
                     window.location.href = '/dashboard?error=invalid_key';
@@ -165,6 +178,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             selectedFile.value = null;
                             fileInput.value.value = '';
                             messageContent.value = '';
+                            fetchMessages();
                             scrollToBottom();
                         } else if (status === 401) {
                             alert('Erro ao enviar mensagem com o arquivo: ' + data.message);
@@ -310,6 +324,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return {
                 messageContent,
                 messages,
+                messagesWithFiles,
                 userId,
                 receiverId,
                 loading,

@@ -1,0 +1,18 @@
+.modal {
+    .modal-content {
+        background-color: var(--white);
+
+        .modal-title {
+            color: var(--cor-secundaria);
+        }
+
+        .btn-close {
+            filter: invert(1);
+            opacity: 1;
+        }
+
+        label {
+            color: var(--cor-secundaria);
+        }
+    }
+}

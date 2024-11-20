@@ -27,6 +27,7 @@ Route::middleware([
 ])->group(function () {
     // Modifique esta rota para usar o UserController
     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
+    Route::get('/listUsers', [UserController::class, 'listUsers'])->name('listUsers');
     Route::put('/user/{id}', [UserController::class, 'update'])->name('user.update');
     Route::delete('/user/{id}', [UserController::class, 'delete'])->name('user.remover');
     Route::delete('/user/{id}/arquivos', [UserController::class, 'removerArquivos'])->name('user.removerArquivos');

@@ -1,17 +1,64 @@
 @import 'variables.scss';
 @import 'Common/header.scss';
 @import 'Common/footer.scss';
+@import 'Common/modal.scss';
 @import 'dashboard/index.scss';
 @import 'dashboard/chat.scss';
+@import 'dashboard/profile.scss';
 
 [x-cloak] {
     display: none;
 }
 
+* {
+    font-family: 'Roboto', sans-serif;
+}
+
+nav a {
+    text-decoration: none;
+    color: inherit;
+}
+
+html {
+    height: 100dvh;
+}
+
 html body {
-    background-color: #e5e7eb;
+    background-color: var(--bg-tercearia);
 }
 
 body main {
     margin-bottom: 64px;
+
+    &.chat-main {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: calc(92.5dvh - 200px);
+    
+        .max-w-7xl {
+            width: 100%;
+        }
+    }
+
+}
+
+#sun, #moon {
+    font-size: 1.125rem;
+    color: $amarelo;
+    cursor: pointer;
+}
+
+#downloadBtn {
+    background-color: var(--cor-principal);
+    color: var(--cor-secundaria);
+    padding: .5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: var(--cor-principal-hover);
+    }
 }

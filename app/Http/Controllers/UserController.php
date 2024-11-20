@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\PrivateKey;
 use App\Models\Message;
 use App\Services\EncryptionService;
 use Illuminate\Support\Facades\Hash;
@@ -19,44 +18,39 @@ class UserController extends Controller
         $this->encryptionService = $encryptionService;
     }
 
-    public function register(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|string|email|unique:users',
-        ]);
-
-        $keys = $this->encryptionService->generateKeys();
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'public_key' => $keys['public_key']
-        ]);
-
-        PrivateKey::create([
-            'user_id' => $user->id,
-            'private_key' => $keys['private_key']
-        ]);
-
-        return response()->json(['status' => 'User registered successfully']);
-    }
-
     // Lista os usuários registrados
     public function dashboard() {
         $user = auth()->user();
         $currentUserId = $user->id;
-        $usuarios = User::all();
+        
         if ($user->hasRole('admin')) {
+            $usuarios = User::all();
             $mensagens = Message::where('content', '!=', '')->get();
             $mensagensArquivos = Message::where('file_path', '!=', '')->get();
             return view('dashboard.admin', compact('usuarios', 'mensagens', 'mensagensArquivos', 'currentUserId')); // View para administradores
+        } else {
+            // Buscar usuários com as mensagens enviadas ou recebidas, ordenando pelas mensagens mais recentes
+            $usuarios = User::whereHas('sentMessages', function ($query) use ($currentUserId) {
+                $query->where('receiver_id', $currentUserId);
+            })
+            ->orWhereHas('receivedMessages', function ($query) use ($currentUserId) {
+                $query->where('sender_id', $currentUserId);
+            })
+            ->with([
+                'sentMessages' => function ($query) use ($currentUserId) {
+                    $query->where('receiver_id', $currentUserId)
+                        ->latest() // Ordena pela data mais recente
+                        ->limit(1); // Pega apenas a mensagem mais recente
+                },
+                'receivedMessages' => function ($query) use ($currentUserId) {
+                    $query->where('sender_id', $currentUserId)
+                        ->latest() // Ordena pela data mais recente
+                        ->limit(1); // Pega apenas a mensagem mais recente
+                }
+            ])
+            ->get();
         }
 
-        if (count($usuarios) === 0) {
-            $usuarios = 'Nenhum usuário registrado';
-        }
-        
         if (request()->has('removeKey')) {
             session()->forget('private_key'); // Remove a chave privada da sessão
         }
@@ -65,6 +59,15 @@ class UserController extends Controller
 
         // Usando compact para passar as variáveis para a view
         return view('dashboard.index', compact('usuarios', 'currentUserId', 'privateKey'));
+    }
+
+    public function listUsers() {
+        $user = auth()->user();
+        $currentUserId = $user->id;
+        $usuarios = User::all();
+
+        // Usando compact para passar as variáveis para a view
+        return view('dashboard.list', compact('usuarios', 'currentUserId'));
     }
 
     public function update(Request $request, $id)

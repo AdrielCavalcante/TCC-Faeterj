@@ -3,7 +3,6 @@
 namespace App\Actions\Fortify;
 
 use App\Models\User;
-use App\Models\PrivateKey;
 use App\Services\EncryptionService;
 
 use Illuminate\Support\Facades\Hash;

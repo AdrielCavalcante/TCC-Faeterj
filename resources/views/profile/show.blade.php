@@ -6,7 +6,7 @@
     </x-slot>
 
     <div>
-        <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8 d-flex flex-wrap justify-content-between gap-5">
+        <div class="main-perfil max-w-7xl mx-auto py-10 sm:px-6 lg:px-8 d-flex flex-wrap justify-content-between gap-5">
             @if (Laravel\Fortify\Features::canUpdateProfileInformation())
                 @livewire('profile.update-profile-information-form')
 

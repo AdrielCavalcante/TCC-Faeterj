@@ -16,10 +16,17 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link href="{{ route('listUsers') }}" :active="request()->routeIs('listUsers')">
+                        {{ __('Lista de Usuários')}}
+                    </x-nav-link>
+                </div>
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <!-- Teams Dropdown -->
+                <i class="bi bi-moon-stars-fill" id="moon"></i>
+                <i class="bi bi-sun-fill" id="sun"></i>
                 @if (Laravel\Jetstream\Jetstream::hasTeamFeatures())
                     <div class="ms-3 relative">
                         <x-dropdown align="right" width="60">

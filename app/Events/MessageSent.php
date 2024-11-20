@@ -19,11 +19,21 @@ class MessageSent implements ShouldBroadcast
     public $senderUser;
     public $receiverUser;
 
-    public function __construct($message, User $senderUser, User $receiverUser)
+    public function __construct($message, $content, User $senderUser, User $receiverUser)
     {
-        $this->message = $message;
+        $this->message = $content;
         $this->senderUser = $senderUser;
         $this->receiverUser = $receiverUser;
+
+        $this->markMessageAsRead($message);
+    }
+
+    public function markMessageAsRead($message)
+    {
+        if ($message->receiver_id == $this->receiverUser->id && $message->read == 0) {
+            $message->read = 1;
+            $message->save();
+        }
     }
 
     public function broadcastOn()

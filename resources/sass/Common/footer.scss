@@ -1,5 +1,5 @@
 footer {
-    background-color: $white;
+    background-color: var(--white);
     display: flex;
     justify-content: center;
     position: fixed;
@@ -9,7 +9,7 @@ footer {
     box-shadow: 0 -6px 10px 0 rgba(0, 0, 0, 0.1);
     
     strong {
-        color: $corSecundaria;
+        color: var(--cor-secundaria);
         font-weight: 600;
     }
 }

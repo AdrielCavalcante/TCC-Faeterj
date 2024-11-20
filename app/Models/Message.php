@@ -16,9 +16,12 @@ class Message extends Model implements Auditable
         'receiver_id',
         'content',
         'file_path',
-        'encrypted',
         'encryption_key_sender',
         'encryption_key_receiver',
+        'encrypted',
+        'read',
+        'created_at',
+        'updated_at',
     ];
 
     public function sender()

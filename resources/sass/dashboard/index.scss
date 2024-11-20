@@ -6,21 +6,45 @@
     margin-top: 32px;
 
     h3 {
-        color: $corSecundaria;
+        color: var(--cor-secundaria);
+    }
+
+    .buscaContato {
+        display: flex;
+        flex-direction: column;
+        min-width: 768px;
+
+        label {
+            color: var(--cor-secundaria);
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-bottom: .5rem;
+        }
+
+        input {
+            width: 325px;
+        }
     }
 
     .listagem {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 16px;
 
-        background-color: $white;
+        background-color: var(--white);
         box-shadow: 0 0 128px 0 rgba(0, 0, 0, 0.1), 0 32px 64px -48px rgba(0, 0, 0, 0.5);
         border-radius: 16px;
         margin-top: 1rem;
         min-height: 400px;
         min-width: 768px;
+
+        .profileName {
+            color: var(--cor-secundaria);
+        }
+
+        .listUsers {
+            overflow-y: auto;
+        }
 
         .authProfile {
             display: flex;
@@ -47,6 +71,17 @@
             &:last-child {
                 border-bottom: none;
             }
+
+            &:hover {
+                background-color: var(--bg-principal-hover);
+            }
+
+            .mensagemNaoLida {
+                width: 10px;
+                height: 10px;
+                background-color: #198754;
+                border-radius: 50%;
+            }
         }
     }
 
@@ -56,5 +91,10 @@
             height: 50px;
             border-radius: 50%;
         }
+    }
+
+    .nenhum {
+        color: var(--cor-secundaria);
+        font-weight: 600;
     }
 }

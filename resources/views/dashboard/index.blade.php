@@ -66,6 +66,11 @@
 <!-- Lista de usuários conectados -->
 <div class="contact-list">
     <h3>Lista de contatos</h3>
+    <div class="buscaContato">
+        <label for="userSearchInput">Buscar contato:</label>
+        <input type="text" id="userSearchInput" placeholder="Buscar usuários por nome ou e-mail" class="form-control">
+    </div>
+
     <div class="listagem">
         <div class="authProfile">
             <div class="profileImage">
@@ -73,26 +78,54 @@
             </div>
             <strong class="profileName">{{ auth()->user()->name }}</strong>
             @if (auth()->user()->sector)        
-                <hr style="width: 20px; opacity: 1; margin: 0 -1rem; border-color: grey; transform: rotate(90deg);">
+                <hr style="width: 20px; opacity: 1; margin: 0 -1rem; border-color: var(--cor-secundaria); transform: rotate(90deg);">
                 <span>{{ auth()->user()->sector }}</span>
             @endif
         </div>
-        @foreach ($usuarios as $user)
-            @if ($user->id !== $currentUserId && $user->roles[0]->name != 'admin') <!-- Verifica se o ID do usuário não é igual ao do usuário atual -->
-                <div class="chatUser" data-user-id="{{ $user->id }}">
-                    <div class="profileImage">
-                        <img src="{{ $user->profile_photo_url }}" alt="foto do usuário: {{ $user->name }}">
+        @if ($usuarios->isNotEmpty())
+            @foreach ($usuarios as $user)
+                @if ($user->id !== $currentUserId && $user->roles[0]->name != 'admin')
+                    <div class="chatUser" 
+                    data-user-id="{{ $user->id }}" 
+                    data-name="{{ $user->name }}" 
+                    data-email="{{ $user->email }}">
+                        <div class="profileImage">
+                            <img src="{{ $user->profile_photo_url }}" alt="foto do usuário: {{ $user->name }}">
+                        </div>
+                        <div class="d-flex gap-2 align-items-center">
+                            <strong class="profileName">{{ $user->name }}</strong>
+                            @if ($user->sector) 
+                                <hr style="width: 20px; opacity: 1; border-color: var(--cor-secundaria); transform: rotate(90deg);">
+                                <span style="color: var(--cor-secundaria)">{{ $user->sector }}</span>
+                            @endif
+                        </div>
+                        <div class="ms-auto">
+                            @if ($user->sentMessages->isNotEmpty() && $user->receivedMessages->isNotEmpty())
+                                @if ($user->sentMessages->first()->created_at > $user->receivedMessages->first()->created_at)
+                                    @if (!$user->sentMessages->first()->read)
+                                        <div class="mensagemNaoLida"></div>
+                                    @endif
+                                @else
+                                    @if (!$user->receivedMessages->first()->read)
+                                        <div class="mensagemNaoLida"></div>
+                                    @endif
+                                @endif
+                            @elseif ($user->sentMessages->isNotEmpty())
+                                @if (!$user->sentMessages->first()->read)
+                                    <div class="mensagemNaoLida"></div>
+                                @endif
+                            @elseif ($user->receivedMessages->isNotEmpty())
+                                @if (!$user->receivedMessages->first()->read)
+                                    <div class="mensagemNaoLida"></div>
+                                @endif
+                            @endif
+                        </div>
                     </div>
-                    <div class="d-flex gap-2 align-items-center">
-                        <strong class="profileName">{{ $user->name }}</strong>
-                        @if ($user->sector) 
-                            <hr style="width: 20px; opacity: 1; border-color: grey; transform: rotate(90deg);">
-                            <span>{{ $user->sector }}</span>
-                        @endif
-                    </div>
-                </div>
-            @endif
-        @endforeach
+                @endif
+            @endforeach
+        @else
+            <p class="mt-5 nenhum">Nenhuma conversa iniciada</p>
+        @endif
     </div>
 </div>
 

@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 use App\Services\EncryptionService;
 use App\Events\MessageSent;
 use App\Models\Message;
-use App\Models\PrivateKey;
 use App\Models\User;
 
 class MessageController extends Controller
@@ -90,12 +89,24 @@ class MessageController extends Controller
         
         $privateKey = request()->input('key');
 
+        // Recupera todas as mensagens entre o usuário logado e o receptor
         $messages = Message::where(function($query) use ($userId, $receiverId) {
             $query->where('sender_id', $userId)->where('receiver_id', $receiverId);
         })->orWhere(function($query) use ($userId, $receiverId) {
             $query->where('sender_id', $receiverId)->where('receiver_id', $userId);
-        })->get();
+        })->orderBy('created_at', 'desc') // Ordena por data para pegar a última mensagem
+        ->get();
 
+        if ($messages->isNotEmpty()) {
+            $lastReceivedMessage = $messages->firstWhere('receiver_id', $userId); // Última mensagem recebida pelo usuário logado
+            
+            // Se houver uma mensagem recebida do outro usuário e não estiver lida, marca como lida
+            if ($lastReceivedMessage && $lastReceivedMessage->sender_id != $userId && !$lastReceivedMessage->read) {
+                $lastReceivedMessage->read = 1;
+                $lastReceivedMessage->save();
+            }
+        }
+        
         foreach($messages as $message) {
             if($message->encrypted) {
                 try {
@@ -137,7 +148,7 @@ class MessageController extends Controller
 
         $request->validate([
             'receiver_id' => 'required|exists:users,id',
-            'file' => 'nullable|file|mimes:txt,svg,jpg,png,pdf,docx,zip|max:40960', // 40 MB em KB
+            'file' => 'nullable|file|mimes:txt,svg,jpg,png,pdf,docx,zip,xlsx,xls,doc|max:40960', // 40 MB em KB
             'content' => 'nullable|string',
             'cipher' => 'nullable|boolean'
         ]);
@@ -185,7 +196,7 @@ class MessageController extends Controller
             // Substituir o conteúdo do arquivo com o conteúdo criptografado
             file_put_contents(storage_path('app/public/' . $filePath), $encryptedContent);
 
-            Message::create([
+            $message = Message::create([
                 'sender_id' => $user->id,
                 'receiver_id' => $receiver->id,
                 'file_path' => $filePath,
@@ -210,7 +221,7 @@ class MessageController extends Controller
     
                 $encryptedContent = $this->encryptionService->encryptAES($content, $aesKey);
                 
-                Message::create([
+                $message = Message::create([
                     'sender_id' => $user->id,
                     'receiver_id' => $receiver->id,
                     'content' => $encryptedContent,
@@ -219,7 +230,7 @@ class MessageController extends Controller
                     'encryption_key_receiver' => $keyReceiver,
                 ]);
             } else {
-                Message::create([
+                $message = Message::create([
                     'sender_id' => $user->id,
                     'receiver_id' => $receiver->id,
                     'content' => $content,
@@ -231,7 +242,7 @@ class MessageController extends Controller
             }
 
             if($user && $receiver) {
-                broadcast(new MessageSent($content, $user, $receiver))->toOthers();
+                broadcast(new MessageSent($message, $content, $user, $receiver))->toOthers();
             }
         }
 
@@ -246,38 +257,5 @@ class MessageController extends Controller
         }
 
         return response()->json(['message' => 'Message sent successfully', 'status' => 201], 201);
-    }
-
-    public function receive($messageId)
-    {
-        $message = Message::findOrFail($messageId);
-        $user = Auth::user();
-
-        if ($message->receiver_id !== $user->id) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
-        if ($message->file_path) {
-            $filePath = storage_path('app/public/' . $message->file_path);
-            if (!file_exists($filePath)) {
-                return response()->json(['error' => 'File not found'], 404);
-            }
-
-            // Descriptografar o conteúdo do arquivo
-            $privateKey = $user->privateKey->private_key;
-            $encryptedContent = $message->content;
-            $decryptedContent = $this->encryptionService->decryptMessage($encryptedContent, $privateKey);
-
-            file_put_contents($filePath, $decryptedContent);
-            return response()->download($filePath);
-        } else {
-            if (!$user->privateKey) {
-                return response()->json(['error' => 'User does not have a private key'], 400);
-            }
-
-            $privateKey = $user->privateKey->private_key;
-            $decryptedContent = $this->encryptionService->decryptMessage($message->content, $privateKey);
-            return response()->json(['content' => $decryptedContent]);
-        }
     }
 }

@@ -28,16 +28,29 @@
                 </div>
             @endif
         </header>
-        <main>
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="row">
-                @if(session('msg'))
-                    <p class="msg">{{session('msg')}}</p>
-                @endif
-                @yield('content')
+        @if(View::hasSection('chat'))
+            <main class="chat-main">
+                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <div class="row">
+                    @if(session('msg'))
+                        <p class="msg">{{session('msg')}}</p>
+                    @endif
+                    @yield('content')
+                    </div>
                 </div>
-            </div>
-        </main>
+            </main>
+        @else
+            <main>
+                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <div class="row">
+                    @if(session('msg'))
+                        <p class="msg">{{session('msg')}}</p>
+                    @endif
+                    @yield('content')
+                    </div>
+                </div>
+            </main>
+        @endif
     <footer>
         <strong>ICS &copy; 2024</strong>
     </footer>
