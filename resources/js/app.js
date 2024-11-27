@@ -30,6 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function darkTheme() {
         let sun = document.getElementById('sun');
         let moon = document.getElementById('moon');
+        let logo = document.getElementById('logo');
+        const baseURL = window.location.origin;
 
         const themeColor = localStorage.getItem('theme-color');
 
@@ -37,12 +39,14 @@ document.addEventListener('DOMContentLoaded', () => {
             document.documentElement.classList.add('dark-mode');
             moon.style.display = 'none';
             sun.style.display = 'block';
+            logo.src = `${baseURL}/storage/img/ics-logo-branca.png`;
         } else {
             document.documentElement.classList.remove('dark-mode');
             sun.style.display = 'none';
             moon.style.display = 'block';
+            logo.src = `${baseURL}/storage/img/ics-logo-cor.png`;
         }
-
+        
         sun.addEventListener('click', () => {
             document.documentElement.classList.remove('dark-mode');
             if(localStorage.getItem('theme-color')) {
@@ -50,13 +54,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             sun.style.display = 'none';
             moon.style.display = 'block';
+            logo.src = `${baseURL}/storage/img/ics-logo-cor.png`;
         });
-
+        
         moon.addEventListener('click', () => {
             document.documentElement.classList.add('dark-mode');
             localStorage.setItem('theme-color', 'dark');
             moon.style.display = 'none';
             sun.style.display = 'block';
+            logo.src = `${baseURL}/storage/img/ics-logo-branca.png`;
         });
     }
         
@@ -76,13 +82,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function filtrarContatos() {
         const searchInput = document.getElementById('userSearchInput');
         const chatUsers = document.querySelectorAll('.chatUser');
-
+        const naoAchou = document.getElementById('naoAchou');
+        naoAchou.classList.add('nao-achou-invisivel');
+        
         if(!searchInput) {
             return;
         }
-
+        
         searchInput.addEventListener('input', () => {
             const searchValue = searchInput.value.toLowerCase();
+            
+            let userFound = false;
 
             chatUsers.forEach(user => {
 
@@ -92,10 +102,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Exibe o usuário se o nome ou e-mail corresponder à busca
                 if (userName.includes(searchValue) || userEmail.includes(searchValue)) {
                     user.style.display = 'flex';
+                    userFound = true;
                 } else {
                     user.style.display = 'none';
                 }
             });
+            
+            // Exibe a mensagem de "Nenhum usuário encontrado" se não houver nenhum usuário correspondente
+            if (!userFound) {
+                naoAchou.classList.add('nao-achou-visivel');
+                naoAchou.classList.remove('nao-achou-invisivel');
+            } else {
+                naoAchou.classList.add('nao-achou-invisivel');
+                naoAchou.classList.remove('nao-achou-visivel');
+            }
         });
+        
     }
 });

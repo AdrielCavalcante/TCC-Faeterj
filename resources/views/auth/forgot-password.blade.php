@@ -1,7 +1,7 @@
 <x-guest-layout>
     <x-authentication-card>
         <x-slot name="logo">
-            <x-authentication-card-logo />
+            <img src="{{ asset('storage/img/ics-logo-completa-cor.png') }}" alt="Logo ICS" width="300">
         </x-slot>
 
         <div class="mb-4 text-sm text-gray-600">

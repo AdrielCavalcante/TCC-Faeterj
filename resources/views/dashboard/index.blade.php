@@ -10,7 +10,7 @@
 {{-- Mensagem de tutorial para baixar a chave --}}
 @if($privateKey)
     <!-- Modal -->
-    <div class="modal fade" id="TutorialModal" tabindex="-1" aria-labelledby="tutorialModal" aria-hidden="true">
+    <div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="TutorialModal" tabindex="-1" aria-labelledby="tutorialModal" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -18,7 +18,14 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <button id="downloadBtn">Baixar Chave Privada</button>
+                    <h1 class="mb-3 text-center text-danger">ATENÇÃO</h1>
+                    <p class="mb-3">Antes de baixar a chave, é <strong>RECOMENDADO</strong> que veja o PDF orientando, onde salvar a chave privada e sua importância.</p>
+                    <div class="d-flex justify-content-center mb-2">
+                        <a href="{{ asset('storage/pdf/Orientacao-chave-privada.pdf') }}" target="_blank">Ver PDF de orientação</a>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <button id="downloadBtn" data-bs-dismiss="modal">Baixar Chave Privada</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -100,29 +107,28 @@
                             @endif
                         </div>
                         <div class="ms-auto">
-                            @if ($user->sentMessages->isNotEmpty() && $user->receivedMessages->isNotEmpty())
-                                @if ($user->sentMessages->first()->created_at > $user->receivedMessages->first()->created_at)
-                                    @if (!$user->sentMessages->first()->read)
-                                        <div class="mensagemNaoLida"></div>
-                                    @endif
-                                @else
-                                    @if (!$user->receivedMessages->first()->read)
-                                        <div class="mensagemNaoLida"></div>
-                                    @endif
-                                @endif
-                            @elseif ($user->sentMessages->isNotEmpty())
+                        @if ($user->sentMessages->isNotEmpty() && $user->receivedMessages->isNotEmpty())
+                            @if ($user->sentMessages->first()->created_at > $user->receivedMessages->first()->created_at)
                                 @if (!$user->sentMessages->first()->read)
                                     <div class="mensagemNaoLida"></div>
                                 @endif
-                            @elseif ($user->receivedMessages->isNotEmpty())
+                            @else
                                 @if (!$user->receivedMessages->first()->read)
                                     <div class="mensagemNaoLida"></div>
                                 @endif
                             @endif
+                        @elseif ($user->sentMessages->isNotEmpty() && $user->receivedMessages->isEmpty())
+                            @if (!$user->sentMessages->first()->read)
+                                <div class="mensagemNaoLida"></div>
+                            @endif
+                        @endif
                         </div>
                     </div>
                 @endif
             @endforeach
+            <div class="d-flex justify-content-center mt-4" id="naoAchou">
+                <strong style="color: var(--black);">Nenhum contato encontrado</strong>
+            </div>
         @else
             <p class="mt-5 nenhum">Nenhuma conversa iniciada</p>
         @endif

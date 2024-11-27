@@ -25,6 +25,14 @@ html {
 
 html body {
     background-color: var(--bg-tercearia);
+
+    .nao-achou-visivel {
+        display: flex !important;
+    }
+    
+    .nao-achou-invisivel {
+        display: none !important;
+    }
 }
 
 body main {
@@ -51,14 +59,14 @@ body main {
 }
 
 #downloadBtn {
-    background-color: var(--cor-principal);
-    color: var(--cor-secundaria);
+    background-color: $azul;
+    color: $white;
     padding: .5rem 1rem;
     border: none;
     border-radius: 8px;
     cursor: pointer;
 
     &:hover {
-        background-color: var(--cor-principal-hover);
+        opacity: .75;
     }
 }

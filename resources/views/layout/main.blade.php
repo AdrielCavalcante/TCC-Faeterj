@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>@yield('titulo')</title>
+        <title>ICS - @yield('titulo')</title>
         <!--Fonte do google-->
         <link href="https://fonts.googleapis.com/css2?family=Roboto" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">

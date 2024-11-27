@@ -5,10 +5,6 @@ use App\Http\Controllers\TestEncryptionController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\UserController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 Route::get('/csrf-token', function () {
     return response()->json(['csrf_token' => csrf_token()]);
 });
@@ -24,7 +20,8 @@ Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
-])->group(function () {
+    ])->group(function () {
+    Route::get('/', [UserController::class, 'dashboard']);
     // Modifique esta rota para usar o UserController
     Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
     Route::get('/listUsers', [UserController::class, 'listUsers'])->name('listUsers');

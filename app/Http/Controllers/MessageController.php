@@ -89,12 +89,20 @@ class MessageController extends Controller
         
         $privateKey = request()->input('key');
 
+        $order = request()->input('order');
+
+        if(!$order) {
+            $order = 'asc';
+        } else if($order !== 'asc' && $order !== 'desc') {
+            return response()->json(['error' => 'Ordem inválida.'], 400);
+        }
+
         // Recupera todas as mensagens entre o usuário logado e o receptor
         $messages = Message::where(function($query) use ($userId, $receiverId) {
             $query->where('sender_id', $userId)->where('receiver_id', $receiverId);
         })->orWhere(function($query) use ($userId, $receiverId) {
             $query->where('sender_id', $receiverId)->where('receiver_id', $userId);
-        })->orderBy('created_at', 'desc') // Ordena por data para pegar a última mensagem
+        })->orderBy('created_at', $order)
         ->get();
 
         if ($messages->isNotEmpty()) {

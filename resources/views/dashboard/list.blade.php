@@ -35,6 +35,9 @@
                 </div>
             @endif
         @endforeach
+        <div class="d-flex justify-content-center mt-4" id="naoAchou">
+            <strong style="color: var(--black);">Nenhum usuário encontrado</strong>
+        </div>
     </div>
 </div>
 
