@@ -19,7 +19,7 @@
                 </div>
                 <div class="modal-body">
                     <h1 class="mb-3 text-center text-danger">ATENÇÃO</h1>
-                    <p class="mb-3">Antes de baixar a chave, é <strong>RECOMENDADO</strong> que veja o PDF orientando, onde salvar a chave privada e sua importância.</p>
+                    <p class="mb-3 text-danger">Antes de baixar a chave, é <strong>RECOMENDADO</strong> que veja o PDF orientando, onde salvar a chave privada e sua importância.</p>
                     <div class="d-flex justify-content-center mb-2">
                         <a href="{{ asset('storage/pdf/Orientacao-chave-privada.pdf') }}" target="_blank">Ver PDF de orientação</a>
                     </div>
