@@ -71,6 +71,12 @@ body main {
     }
 }
 
-#editRemoveForm * {
-    color: var(--black);
+#editRemoveForm {
+    * {
+        color: var(--black);
+    }
+
+    button {
+        color: #FFF;
+    }
 }
