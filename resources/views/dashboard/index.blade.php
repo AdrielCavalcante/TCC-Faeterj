@@ -111,6 +111,8 @@
                             @if ($user->sentMessages->first()->created_at > $user->receivedMessages->first()->created_at)
                                 @if (!$user->sentMessages->first()->read)
                                     <div class="mensagemNaoLida"></div>
+                                @elseif (!$user->receivedMessages->first()->read)
+                                    <div class="mensagemNaoLida"></div>
                                 @endif
                             @else
                                 @if (!$user->receivedMessages->first()->read)

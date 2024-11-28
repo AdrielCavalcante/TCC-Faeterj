@@ -186,6 +186,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             alert('Erro ao enviar mensagem com o arquivo: Arquivo muito grande, limite é 40MB');
                         } else if (status === 422) {
                             alert('Erro ao enviar mensagem com o arquivo: Arquivo inválido');
+                            selectedFile.value = null;
+                            fileInput.value.value = '';
+                            messageContent.value = '';
                         } else {
                             alert('Erro ao enviar mensagem com o arquivo: ' + data.message);
                         }
@@ -310,12 +313,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log(`Tempo de latência: ${latency.toFixed(2)} ms`);
 
                     if(data.sender_id !== userId) {
-                        messages.value.push({
-                            content: data.content,
-                            sender_id: data.sender_id,
-                            created_at: new Date(data.created_at).toISOString()
-                        });
-                        scrollToBottom();
+                        if(data.content == '#imagemRecebida') {
+                            fetchMessages();
+                            scrollToBottom();
+                        } else {
+                            messages.value.push({
+                                content: data.content,
+                                sender_id: data.sender_id,
+                                created_at: new Date(data.created_at).toISOString()
+                            });
+                            scrollToBottom();
+                        }
                     }
 
                 });
