@@ -18,7 +18,14 @@ chat
 @section('content')
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
+
 <section id="chat">
+    <div class="alert alert-danger position-absolute top-25 start-50 translate-middle" role="alert" v-if="removidoMsg">
+        Anexo removido com sucesso!
+    </div>
+    <div class="alert alert-primary position-absolute top-25 start-50 translate-middle" role="alert" v-if="marcadoLido">
+        Mensagem marcada como lida!
+    </div>
     <section class="col-lg-2 col-12">
         <article class="card">
             <div class="card-header">
@@ -108,6 +115,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const selectedFile = ref(null);
             const fileInput = ref(null);
             const loading = ref(false);
+            const removidoMsg = ref(false);
+            const marcadoLido = ref(false);
 
             let sendTime = 0;
 
@@ -279,13 +288,24 @@ document.addEventListener('DOMContentLoaded', function() {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     }
-                });
-
-                messages.value = messages.value.map(message => {
-                    if(message.id === messageId) {
-                        message.read = true;
+                }).then(response => {
+                    if(response.status === 200) {
+                        messages.value = messages.value.map(message => {
+                            if(message.id === messageId) {
+                                message.read = true;
+                            }
+                            marcadoLido.value = true;
+                            setTimeout(() => {
+                                marcadoLido.value = false;
+                            }, 2000);
+                            return message;
+                        });
+                    } else {
+                        alert('Erro ao marcar como lido');
                     }
-                    return message;
+                }).catch(error => {
+                    console.error('Error:', error);
+                    alert('Erro ao marcar como lido');
                 });
             };
 
@@ -305,6 +325,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         setTimeout(() => {
                             scrollToBottom();
                         }, 750);
+                        removidoMsg.value = true;
+
+                        setTimeout(() => {
+                            removidoMsg.value = false;
+                        }, 2000);
                     } else {
                         alert('Erro ao remover anexo');
                     }
@@ -401,6 +426,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 handleKeyDown,
                 marcarComoLido,
                 removerAnexo,
+                removidoMsg,
+                marcadoLido
             };
         },
     }).mount('#chat');
