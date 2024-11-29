@@ -46,12 +46,20 @@ chat
         <section class="Innerchat">
             <!-- Renderizar mensagens dinamicamente com Vue -->
             <article v-for="message in messages" :key="message.id" :class="{'sent': message.sender_id === userId, 'received': message.sender_id !== userId}">
-                <small>@{{ new Date(message.created_at).toLocaleDateString() }} @{{ new Date(message.created_at).toLocaleTimeString() }}</small>
+                <div class="d-flex gap-2">
+                    <small>@{{ new Date(message.created_at).toLocaleDateString() }} @{{ new Date(message.created_at).toLocaleTimeString() }}</small>
+                    <div v-if="!message.read && message.sender_id !== userId" class="olho">
+                        <i class="bi bi-eye" id="marcarLido" title="Marcar como lido" @click="marcarComoLido(message.id)"></i>
+                    </div>
+                </div>
                 <div class="box-chat" v-if="message.content">
                     <p>@{{ message.content }}</p>
                 </div>
                 <div class="box-button" :id="`btn${message.id}`" v-else>
                     <button class="border" v-if="message.file_path" @click="downloadFile(message.id, {'sender': message.sender_id === userId, 'receiver': message.sender_id !== userId})">Baixar Arquivo</button>
+                    <div v-if="message.sender_id === userId">
+                        <i class="bi bi-folder-x" id="removerArquivo" title="Remover anexo" @click="removerAnexo(message.id)"></i>
+                    </div>
                 </div>
             </article>
         </section>
@@ -81,6 +89,8 @@ chat
 <script>
 document.addEventListener('DOMContentLoaded', function() { 
     const { createApp, ref, onMounted, watchEffect } = Vue;
+
+    const appUrl = "{{ config('app.url') }}";
 
     // Inicializar o Pusher com as variáveis do .env (MUDAR ISSO PARA O BACKEND)
     const pusher = new Pusher('{{ config('broadcasting.connections.pusher.key') }}', {
@@ -260,6 +270,51 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.open(url, '_blank');
             }
 
+            const marcarComoLido = (messageId) => {
+                const url = `${appUrl}/marcarLido/${messageId}`;
+
+                fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+
+                messages.value = messages.value.map(message => {
+                    if(message.id === messageId) {
+                        message.read = true;
+                    }
+                    return message;
+                });
+            };
+
+            const removerAnexo = (messageId) => {
+                const url = `${appUrl}/message/${messageId}`;
+
+                fetch(url, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(response => {
+                    if(response.status === 204) {
+                        fetchMessages();
+                        setTimeout(() => {
+                            scrollToBottom();
+                        }, 750);
+                    } else {
+                        alert('Erro ao remover anexo');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Erro ao remover anexo');
+                });
+            };
+
             const triggerFileInput = () => {
                 fileInput.value.click();  // Simula o clique no input de arquivo
             };
@@ -311,9 +366,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     console.log('Nova mensagem recebida:', data);
                     console.log(`Tempo de latência: ${latency.toFixed(2)} ms`);
-
+                    
                     if(data.sender_id !== userId) {
-                        if(data.content == '#imagemRecebida') {
+                        if(data.content == '#imagemRecebida' || data.atualizar) {
                             fetchMessages();
                             scrollToBottom();
                         } else {
@@ -343,7 +398,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 fileInput,
                 downloadFile,
                 triggerFileInput,
-                handleKeyDown
+                handleKeyDown,
+                marcarComoLido,
+                removerAnexo,
             };
         },
     }).mount('#chat');

@@ -18,14 +18,17 @@ class MessageSent implements ShouldBroadcast
     public $message;
     public $senderUser;
     public $receiverUser;
+    public $atualizar = false;
 
-    public function __construct($message, $content, User $senderUser, User $receiverUser)
+    public function __construct($message = false, $content, User $senderUser, User $receiverUser)
     {
         $this->message = $content;
         $this->senderUser = $senderUser;
         $this->receiverUser = $receiverUser;
 
-        $this->markMessageAsRead($message);
+        if($message != false) {
+            $this->markMessageAsRead($message);
+        }
     }
 
     public function markMessageAsRead($message)
@@ -57,10 +60,15 @@ class MessageSent implements ShouldBroadcast
 
     public function broadcastWith()
     {
+        if($this->message == 'updatePage') {
+            $this->atualizar = true;
+        }
+
         return [
             'content' => $this->message,
             'sender_id' => $this->senderUser->id,
             'created_at' => now()->toISOString(), // Convertendo para ISO string
+            'atualizar' => $this->atualizar,
         ];
     }
 

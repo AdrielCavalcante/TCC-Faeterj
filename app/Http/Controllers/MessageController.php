@@ -214,6 +214,10 @@ class MessageController extends Controller
                 'encryption_key_receiver' => $keyReceiver,
             ]);
 
+            if($user && $receiver) {
+                broadcast(new MessageSent(false, 'updatePage', $user, User::find($message->receiver_id)))->toOthers();
+            }
+
         } else {
             // Caso tenha apenas conteúdo de texto
             $content = $request->input('content');
@@ -265,5 +269,42 @@ class MessageController extends Controller
         }
 
         return response()->json(['message' => 'Message sent successfully', 'status' => 201], 201);
+    }
+
+    public function delete($id)
+    {
+        $message = Message::findOrFail($id);
+
+        
+        $user = Auth::user();
+        
+        if ($message->sender_id !== $user->id) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        if(file_exists(storage_path('app/public/' . $message->file_path))) {
+            unlink(storage_path('app/public/' . $message->file_path));
+        }
+        
+        broadcast(new MessageSent(false, 'updatePage', $user, User::find($message->receiver_id)))->toOthers();
+        $message->delete();
+
+        return response()->json(['message' => 'Message deleted successfully'], 204);
+    }
+
+    public function marcarLido($id)
+    {
+        $message = Message::findOrFail($id);
+
+        $user = Auth::user();
+        
+        if ($message->receiver_id !== $user->id) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $message->read = 1;
+        $message->save();
+
+        return response()->json(['message' => 'Message marked as read'], 200);
     }
 }

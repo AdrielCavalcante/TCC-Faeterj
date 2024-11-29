@@ -28,9 +28,11 @@ Route::middleware([
     Route::put('/user/{id}', [UserController::class, 'update'])->name('user.update');
     Route::delete('/user/{id}', [UserController::class, 'delete'])->name('user.remover');
     Route::delete('/user/{id}/arquivos', [UserController::class, 'removerArquivos'])->name('user.removerArquivos');
-
+    
     Route::get('/chat/{id}', [MessageController::class, 'showChat'])->name('chat');
     Route::post('/chatMessage/{receiverId}', [MessageController::class, 'getMessages'])->name('chatMessage');
     Route::get('/download-file/{messageId}', [MessageController::class, 'downloadDecryptedFile'])->name('downloadFile');
+    Route::delete('/message/{id}', [MessageController::class, 'delete'])->name('message.delete');
+    Route::put('/marcarLido/{id}', [MessageController::class, 'marcarLido'])->name('marcarLido');
     
 });
