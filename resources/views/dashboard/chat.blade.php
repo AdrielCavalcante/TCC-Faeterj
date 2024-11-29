@@ -52,10 +52,10 @@ chat
     <section class="chat-box col-lg-10 col-12">
         <section class="Innerchat">
             <!-- Renderizar mensagens dinamicamente com Vue -->
-            <article v-for="message in messages" :key="message.id" :class="{'sent': message.sender_id === userId, 'received': message.sender_id !== userId}">
+            <article v-for="(message, index) in messages" :key="message.id" :class="{'sent': message.sender_id === userId, 'received': message.sender_id !== userId}">
                 <div class="d-flex gap-2">
                     <small>@{{ new Date(message.created_at).toLocaleDateString() }} @{{ new Date(message.created_at).toLocaleTimeString() }}</small>
-                    <div v-if="!message.read && message.sender_id !== userId" class="olho">
+                    <div v-if="!mensagensLidas[index] && message.sender_id !== userId" class="olho">
                         <i class="bi bi-eye" id="marcarLido" title="Marcar como lido" @click="marcarComoLido(message.id)"></i>
                     </div>
                 </div>
@@ -117,6 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const loading = ref(false);
             const removidoMsg = ref(false);
             const marcadoLido = ref(false);
+            const mensagensLidas = ref([]);
 
             let sendTime = 0;
 
@@ -138,6 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
 
             const fetchMessages = () => {
+                pegarMensagensLidas();
                 messages.value = [];
                 messagesWithFiles.value = [];
                 const keyVar = sessionStorage.getItem('key');
@@ -161,6 +163,31 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.location.href = '/dashboard?error=invalid_key';
                 }); 
             };
+
+            const pegarMensagensLidas = () => {
+                mensagensLidas.value = [];
+                const keyVar = sessionStorage.getItem('key');
+
+                fetch(`{{ url('chatMessage') }}/${receiverId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        key: keyVar
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    mensagensLidas.value = data.filter(message => message.read === 1);
+                    console.log(mensagensLidas.value);
+                })
+                .catch(error => {
+                    window.location.href = '/dashboard?error=invalid_key';
+                }); 
+            };
+
 
             const sendMessage = () => {
                 loading.value = true;
@@ -199,6 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             messageContent.value = '';
                             fetchMessages();
                             scrollToBottom();
+                            pegarMensagensLidas();
                         } else if (status === 401) {
                             alert('Erro ao enviar mensagem com o arquivo: ' + data.message);
                         } else if (status === 413) {
@@ -247,6 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             });
                             messageContent.value = ''; // Limpa o campo de mensagem
                             scrollToBottom();
+                            pegarMensagensLidas();
                         } else if (status === 401) {
                             alert('Erro ao enviar mensagem: ' + data.message);
                         } else if (status === 422) {
@@ -280,6 +309,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const marcarComoLido = (messageId) => {
+                console.log('lido: ' + messageId);
+                if(!messageId) {
+                    return;
+                }
+
                 const url = `${appUrl}/marcarLido/${messageId}`;
 
                 fetch(url, {
@@ -290,9 +324,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }).then(response => {
                     if(response.status === 200) {
+                        console.log('Mensagem marcada como lida');
+                        console.log(messages.value);
+                        console.log(mensagensLidas.value);
                         messages.value = messages.value.map(message => {
                             if(message.id === messageId) {
                                 message.read = true;
+                                mensagensLidas.value.push(message);
                             }
                             marcadoLido.value = true;
                             setTimeout(() => {
@@ -395,15 +433,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     if(data.sender_id !== userId) {
                         if(data.content == '#imagemRecebida' || data.atualizar) {
                             fetchMessages();
-                            scrollToBottom();
                         } else {
                             messages.value.push({
+                                id: data.id,
                                 content: data.content,
                                 sender_id: data.sender_id,
                                 created_at: new Date(data.created_at).toISOString()
                             });
-                            scrollToBottom();
                         }
+                        pegarMensagensLidas();
+                        scrollToBottom();
                     }
 
                 });
@@ -427,7 +466,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 marcarComoLido,
                 removerAnexo,
                 removidoMsg,
-                marcadoLido
+                marcadoLido,
+                mensagensLidas,
+                pegarMensagensLidas,
             };
         },
     }).mount('#chat');

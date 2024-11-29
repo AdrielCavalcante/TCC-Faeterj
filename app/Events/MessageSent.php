@@ -15,28 +15,18 @@ class MessageSent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public $id;
     public $message;
     public $senderUser;
     public $receiverUser;
     public $atualizar = false;
 
-    public function __construct($message = false, $content, User $senderUser, User $receiverUser)
+    public function __construct($id, $content, User $senderUser, User $receiverUser)
     {
+        $this->id = $id;
         $this->message = $content;
         $this->senderUser = $senderUser;
         $this->receiverUser = $receiverUser;
-
-        if($message != false) {
-            $this->markMessageAsRead($message);
-        }
-    }
-
-    public function markMessageAsRead($message)
-    {
-        if ($message->receiver_id == $this->receiverUser->id && $message->read == 0) {
-            $message->read = 1;
-            $message->save();
-        }
     }
 
     public function broadcastOn()
@@ -65,6 +55,7 @@ class MessageSent implements ShouldBroadcast
         }
 
         return [
+            'id' => $this->id,
             'content' => $this->message,
             'sender_id' => $this->senderUser->id,
             'created_at' => now()->toISOString(), // Convertendo para ISO string

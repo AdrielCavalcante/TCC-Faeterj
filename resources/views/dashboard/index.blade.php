@@ -83,11 +83,13 @@
             <div class="profileImage">
                 <img src="{{ auth()->user()->profile_photo_url }}" alt="foto do usuário: {{ auth()->user()->name }}">
             </div>
-            <strong class="profileName">{{ auth()->user()->name }}</strong>
-            @if (auth()->user()->sector)        
-                <hr style="width: 20px; opacity: 1; margin: 0 -1rem; border-color: var(--cor-secundaria); transform: rotate(90deg);">
-                <span>{{ auth()->user()->sector }}</span>
-            @endif
+            <div class="d-flex gap-4 align-items-center">
+                <strong class="profileName">{{ auth()->user()->name }}</strong>
+                @if (auth()->user()->sector)        
+                    <hr style="width: 20px; opacity: 1; margin: 0 -1rem; border-color: var(--cor-secundaria); transform: rotate(90deg);">
+                    <span>{{ auth()->user()->sector }}</span>
+                @endif
+            </div>
         </div>
         @if ($usuarios->isNotEmpty())
             @foreach ($usuarios as $user)
@@ -108,20 +110,26 @@
                         </div>
                         <div class="ms-auto">
                         @if ($user->sentMessages->isNotEmpty() && $user->receivedMessages->isNotEmpty())
-                            @if ($user->sentMessages->first()->created_at > $user->receivedMessages->first()->created_at)
+                            @if ($user->sentMessages->first()->receiver_id == $currentUserId)
                                 @if (!$user->sentMessages->first()->read)
                                     <div class="mensagemNaoLida"></div>
-                                @elseif (!$user->receivedMessages->first()->read)
-                                    <div class="mensagemNaoLida"></div>
                                 @endif
-                            @else
+                            @elseif ($user->receivedMessages->first()->sender_id == $currentUserId)
                                 @if (!$user->receivedMessages->first()->read)
                                     <div class="mensagemNaoLida"></div>
                                 @endif
                             @endif
                         @elseif ($user->sentMessages->isNotEmpty() && $user->receivedMessages->isEmpty())
-                            @if (!$user->sentMessages->first()->read)
-                                <div class="mensagemNaoLida"></div>
+                            @if ($user->sentMessages->first()->receiver_id == $currentUserId)
+                                @if (!$user->sentMessages->first()->read)
+                                    <div class="mensagemNaoLida"></div>
+                                @endif
+                            @endif
+                        @elseif ($user->sentMessages->isEmpty() && $user->receivedMessages->isNotEmpty())
+                            @if ($user->receivedMessages->first()->sender_id == $currentUserId)
+                                @if (!$user->receivedMessages->first()->read)
+                                    <div class="mensagemNaoLida"></div>
+                                @endif
                             @endif
                         @endif
                         </div>

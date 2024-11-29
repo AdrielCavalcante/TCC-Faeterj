@@ -104,16 +104,6 @@ class MessageController extends Controller
             $query->where('sender_id', $receiverId)->where('receiver_id', $userId);
         })->orderBy('created_at', $order)
         ->get();
-
-        if ($messages->isNotEmpty()) {
-            $lastReceivedMessage = $messages->firstWhere('receiver_id', $userId); // Última mensagem recebida pelo usuário logado
-            
-            // Se houver uma mensagem recebida do outro usuário e não estiver lida, marca como lida
-            if ($lastReceivedMessage && $lastReceivedMessage->sender_id != $userId && !$lastReceivedMessage->read) {
-                $lastReceivedMessage->read = 1;
-                $lastReceivedMessage->save();
-            }
-        }
         
         foreach($messages as $message) {
             if($message->encrypted) {
@@ -204,18 +194,46 @@ class MessageController extends Controller
             // Substituir o conteúdo do arquivo com o conteúdo criptografado
             file_put_contents(storage_path('app/public/' . $filePath), $encryptedContent);
 
-            $message = Message::create([
-                'sender_id' => $user->id,
-                'receiver_id' => $receiver->id,
-                'file_path' => $filePath,
-                'content' => '',
-                'encrypted' => $cipher,
-                'encryption_key_sender' => $keySender,
-                'encryption_key_receiver' => $keyReceiver,
-            ]);
+            try {
+                $message = Message::create([
+                    'sender_id' => $user->id,
+                    'receiver_id' => $receiver->id,
+                    'file_path' => $filePath,
+                    'content' => '',
+                    'encrypted' => $cipher,
+                    'encryption_key_sender' => $keySender,
+                    'encryption_key_receiver' => $keyReceiver,
+                ]);
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'Erro ao enviar a mensagem.'], 500);
+            } finally {
+                // Pega todas mensagens entre os 2 usuários e marca como lidas
+                $lastMessage = Message::where(function ($query) use ($receiver, $user) {
+                    $query->where('sender_id', $receiver->id)
+                        ->where('receiver_id', $user->id);
+                    })
+                    ->orWhere(function ($query) use ($receiver, $user) {
+                        $query->where('sender_id', $user->id)
+                            ->where('receiver_id', $receiver->id);
+                    })
+                    ->latest('created_at') // Ou use 'id' se for incremental
+                    ->first();
+                
+                // Atualize todas as mensagens, exceto a última
+                Message::where(function ($query) use ($receiver, $user) {
+                    $query->where('sender_id', $receiver->id)
+                          ->where('receiver_id', $user->id);
+                    })
+                    ->orWhere(function ($query) use ($receiver, $user) {
+                        $query->where('sender_id', $user->id)
+                            ->where('receiver_id', $receiver->id);
+                    })
+                    ->where('id', '!=', $lastMessage->id) // Exclua a última mensagem
+                    ->update(['read' => 1]); 
+            }
 
             if($user && $receiver) {
-                broadcast(new MessageSent(false, 'updatePage', $user, User::find($message->receiver_id)))->toOthers();
+                broadcast(new MessageSent($message->id, 'updatePage', $user, User::find($message->receiver_id)))->toOthers();
             }
 
         } else {
@@ -233,30 +251,85 @@ class MessageController extends Controller
     
                 $encryptedContent = $this->encryptionService->encryptAES($content, $aesKey);
                 
-                $message = Message::create([
-                    'sender_id' => $user->id,
-                    'receiver_id' => $receiver->id,
-                    'content' => $encryptedContent,
-                    'encrypted' => true,
-                    'encryption_key_sender' => $keySender,
-                    'encryption_key_receiver' => $keyReceiver,
-                ]);
+                try {
+                    $message = Message::create([
+                        'sender_id' => $user->id,
+                        'receiver_id' => $receiver->id,
+                        'content' => $encryptedContent,
+                        'encrypted' => true,
+                        'encryption_key_sender' => $keySender,
+                        'encryption_key_receiver' => $keyReceiver,
+                    ]);
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Erro ao enviar a mensagem.'], 500);
+                } finally {
+                    // Pega todas mensagens entre os 2 usuários e marca como lidas
+                    $lastMessage = Message::where(function ($query) use ($receiver, $user) {
+                        $query->where('sender_id', $receiver->id)
+                            ->where('receiver_id', $user->id);
+                        })
+                        ->orWhere(function ($query) use ($receiver, $user) {
+                            $query->where('sender_id', $user->id)
+                                ->where('receiver_id', $receiver->id);
+                        })
+                        ->latest('created_at') // Ou use 'id' se for incremental
+                        ->first();
+                    
+                    // Atualize todas as mensagens, exceto a última
+                    Message::where(function ($query) use ($receiver, $user) {
+                        $query->where('sender_id', $receiver->id)
+                            ->where('receiver_id', $user->id);
+                        })
+                        ->orWhere(function ($query) use ($receiver, $user) {
+                            $query->where('sender_id', $user->id)
+                                ->where('receiver_id', $receiver->id);
+                        })
+                        ->where('id', '!=', $lastMessage->id) // Exclua a última mensagem
+                        ->update(['read' => 1]);   
+                }
             } else {
-                $message = Message::create([
-                    'sender_id' => $user->id,
-                    'receiver_id' => $receiver->id,
-                    'content' => $content,
-                    'encrypted' => false,
-                    'encryption_key_sender' => '',
-                    'encryption_key_receiver' => '',
-                ]);
-                
+                try {
+                    $message = Message::create([
+                        'sender_id' => $user->id,
+                        'receiver_id' => $receiver->id,
+                        'content' => $content,
+                        'encrypted' => false,
+                        'encryption_key_sender' => '',
+                        'encryption_key_receiver' => '',
+                    ]);
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Erro ao enviar a mensagem.'], 500);
+                } finally {
+                    // Pega todas mensagens entre os 2 usuários e marca como lidas
+                    $lastMessage = Message::where(function ($query) use ($receiver, $user) {
+                        $query->where('sender_id', $receiver->id)
+                            ->where('receiver_id', $user->id);
+                        })
+                        ->orWhere(function ($query) use ($receiver, $user) {
+                            $query->where('sender_id', $user->id)
+                                ->where('receiver_id', $receiver->id);
+                        })
+                        ->latest('created_at') // Ou use 'id' se for incremental
+                        ->first();
+                    
+                    // Atualize todas as mensagens, exceto a última
+                    Message::where(function ($query) use ($receiver, $user) {
+                        $query->where('sender_id', $receiver->id)
+                            ->where('receiver_id', $user->id);
+                        })
+                        ->orWhere(function ($query) use ($receiver, $user) {
+                            $query->where('sender_id', $user->id)
+                                ->where('receiver_id', $receiver->id);
+                        })
+                        ->where('id', '!=', $lastMessage->id) // Exclua a última mensagem
+                        ->update(['read' => 1]); 
+                }
             }
 
             if($user && $receiver) {
-                broadcast(new MessageSent($message, $content, $user, $receiver))->toOthers();
+                broadcast(new MessageSent($message->id, $content, $user, $receiver))->toOthers();
             }
-        }
+        }    
 
         // Finalizar o tempo e calcular a diferença
         $endTime = microtime(true);
@@ -286,7 +359,7 @@ class MessageController extends Controller
             unlink(storage_path('app/public/' . $message->file_path));
         }
         
-        broadcast(new MessageSent(false, 'updatePage', $user, User::find($message->receiver_id)))->toOthers();
+        broadcast(new MessageSent($message->id, 'updatePage', $user, User::find($message->receiver_id)))->toOthers();
         $message->delete();
 
         return response()->json(['message' => 'Message deleted successfully'], 204);
