@@ -16,6 +16,9 @@
     </div>
 
     <div class="listagem">
+        <div class="d-flex justify-content-center mt-4" id="naoAchou">
+            <strong style="color: var(--black);">Nenhum usuário encontrado</strong>
+        </div>
         @foreach ($usuarios as $user)
             @if ($user->id !== $currentUserId && $user->roles[0]->name != 'admin')
                 <div class="chatUser" 
@@ -35,9 +38,6 @@
                 </div>
             @endif
         @endforeach
-        <div class="d-flex justify-content-center mt-4" id="naoAchou">
-            <strong style="color: var(--black);">Nenhum usuário encontrado</strong>
-        </div>
     </div>
 </div>
 

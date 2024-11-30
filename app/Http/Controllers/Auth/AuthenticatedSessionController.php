@@ -25,6 +25,11 @@ class AuthenticatedSessionController extends Controller
         if (Auth::attempt($credentials)) {
             // Usuário autenticado com sucesso
             $user = Auth::user();
+
+            if (session()->get('private_key', null) !== null) {
+                session()->forget('private_key'); // Remove a chave privada da sessão
+            }
+
             // Criar um token para o usuário (opcional, se estiver usando tokens)
             $token = $user->createToken('Personal Access Token')->plainTextToken;
 
@@ -38,6 +43,10 @@ class AuthenticatedSessionController extends Controller
     public function destroy(Request $request)
     {
         Auth::logout();
+
+        if (session()->get('private_key', null) !== null) {
+            session()->forget('private_key'); // Remove a chave privada da sessão
+        }
 
         return response()->json(['message' => 'Logout successful'], 200);
     }

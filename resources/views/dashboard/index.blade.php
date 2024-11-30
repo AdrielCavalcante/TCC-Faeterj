@@ -92,6 +92,9 @@
             </div>
         </div>
         @if ($usuarios->isNotEmpty())
+            <div class="d-flex justify-content-center mt-4" id="naoAchou">
+                <strong style="color: var(--black);">Nenhum contato encontrado</strong>
+            </div>
             @foreach ($usuarios as $user)
                 @if ($user->id !== $currentUserId && $user->roles[0]->name != 'admin')
                     <div class="chatUser" 
@@ -136,9 +139,6 @@
                     </div>
                 @endif
             @endforeach
-            <div class="d-flex justify-content-center mt-4" id="naoAchou">
-                <strong style="color: var(--black);">Nenhum contato encontrado</strong>
-            </div>
         @else
             <p class="mt-5 nenhum">Nenhuma conversa iniciada</p>
         @endif
