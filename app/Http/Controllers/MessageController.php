@@ -348,15 +348,23 @@ class MessageController extends Controller
     {
         $message = Message::findOrFail($id);
 
-        
         $user = Auth::user();
         
         if ($message->sender_id !== $user->id) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        if(file_exists(storage_path('app/public/' . $message->file_path))) {
-            unlink(storage_path('app/public/' . $message->file_path));
+        $filePath = storage_path('app/public/' . $message->file_path);
+
+        if (file_exists($filePath)) {
+            // Obtendo o tamanho do arquivo
+            $fileSize = filesize($filePath);
+
+            // Excluindo o arquivo
+            unlink($filePath);
+
+            // Atualizando o espaço usado
+            $user->storage_used -= $fileSize;
         }
         
         broadcast(new MessageSent($message->id, 'updatePage', $user, User::find($message->receiver_id)))->toOthers();
