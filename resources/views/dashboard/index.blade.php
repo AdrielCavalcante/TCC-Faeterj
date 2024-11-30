@@ -112,28 +112,17 @@
                             @endif
                         </div>
                         <div class="ms-auto">
-                        @if ($user->sentMessages->isNotEmpty() && $user->receivedMessages->isNotEmpty())
-                            @if ($user->sentMessages->first()->receiver_id == $currentUserId)
-                                @if (!$user->sentMessages->first()->read)
-                                    <div class="mensagemNaoLida"></div>
-                                @endif
-                            @elseif ($user->receivedMessages->first()->sender_id == $currentUserId)
-                                @if (!$user->receivedMessages->first()->read)
-                                    <div class="mensagemNaoLida"></div>
-                                @endif
-                            @endif
-                        @elseif ($user->sentMessages->isNotEmpty() && $user->receivedMessages->isEmpty())
-                            @if ($user->sentMessages->first()->receiver_id == $currentUserId)
-                                @if (!$user->sentMessages->first()->read)
-                                    <div class="mensagemNaoLida"></div>
-                                @endif
-                            @endif
-                        @elseif ($user->sentMessages->isEmpty() && $user->receivedMessages->isNotEmpty())
-                            @if ($user->receivedMessages->first()->sender_id == $currentUserId)
-                                @if (!$user->receivedMessages->first()->read)
-                                    <div class="mensagemNaoLida"></div>
-                                @endif
-                            @endif
+                        @php
+                            // Combina mensagens enviadas e recebidas entre os dois usuários
+                            $chatMessages = $user->sentMessages
+                                ->where('receiver_id', $currentUserId)
+                                ->merge($user->receivedMessages->where('sender_id', $currentUserId))
+                                ->sortByDesc('created_at'); // Ordena pela data mais recente
+                            $lastMessage = $chatMessages->first(); // Pega a última mensagem do chat
+                        @endphp
+
+                        @if ($lastMessage && $lastMessage->sender_id == $user->id && !$lastMessage->read)
+                            <div class="mensagemNaoLida"></div>
                         @endif
                         </div>
                     </div>
