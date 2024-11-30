@@ -365,6 +365,8 @@ class MessageController extends Controller
 
             // Atualizando o espaço usado
             $user->storage_used -= $fileSize;
+
+            $user->save();
         }
         
         broadcast(new MessageSent($message->id, 'updatePage', $user, User::find($message->receiver_id)))->toOthers();
